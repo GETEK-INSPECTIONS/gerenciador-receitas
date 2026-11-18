@@ -1,0 +1,15 @@
+{
+  "title": "Panquecas de banana",
+  "servings": 2,
+  "ingredients": [
+    {"name": "banana madura", "quantity": 1, "unit": "unidade"},
+    {"name": "ovo", "quantity": 1, "unit": "unidade"},
+    {"name": "aveia em flocos finos", "quantity": 30, "unit": "g"}
+  ],
+  "steps": [
+    "Amasse a banana em uma tigela.",
+    "Misture o ovo e a aveia até incorporar.",
+    "Distribua pequenas porções em uma frigideira antiaderente aquecida.",
+    "Cozinhe dos dois lados até firmar e dourar."
+  ]
+}
