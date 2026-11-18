@@ -1,1 +1,1 @@
-"""Gerenciador local de receitas culinárias."""
+"""Local recipe manager."""

@@ -1,0 +1,27 @@
+{
+  "title": "Banana pancakes",
+  "servings": 2,
+  "ingredients": [
+    {
+      "name": "ripe banana",
+      "quantity": 1,
+      "unit": "piece"
+    },
+    {
+      "name": "egg",
+      "quantity": 1,
+      "unit": "piece"
+    },
+    {
+      "name": "quick oats",
+      "quantity": 30,
+      "unit": "g"
+    }
+  ],
+  "steps": [
+    "Mash the banana in a bowl.",
+    "Mix in the egg and oats until combined.",
+    "Spoon small portions into a heated nonstick skillet.",
+    "Cook on both sides until set and golden."
+  ]
+}

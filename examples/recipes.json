@@ -1,0 +1,824 @@
+[
+  {
+    "title": "Scrambled eggs with tomato",
+    "category": "Breakfast",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "egg",
+        "quantity": 4,
+        "unit": "pieces"
+      },
+      {
+        "name": "chopped tomato",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "butter",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "salt",
+        "quantity": 1,
+        "unit": "g"
+      },
+      {
+        "name": "chopped chives",
+        "quantity": 1,
+        "unit": "tbsp"
+      }
+    ],
+    "steps": [
+      "Beat the eggs with the salt in a bowl.",
+      "Melt the butter over medium heat and cook the tomato for 2 minutes.",
+      "Add the eggs and stir over low heat until fully cooked but still soft. Finish with the chives and serve."
+    ]
+  },
+  {
+    "title": "Banana oatmeal",
+    "category": "Breakfast",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "rolled oats",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "milk",
+        "quantity": 400,
+        "unit": "ml"
+      },
+      {
+        "name": "banana",
+        "quantity": 2,
+        "unit": "pieces"
+      },
+      {
+        "name": "ground cinnamon",
+        "quantity": 0.5,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "Slice one banana and mash the other.",
+      "Put the oats, milk and mashed banana in a saucepan over low heat. Stir for 5 to 8 minutes, until thickened.",
+      "Divide between two bowls and top with the banana slices and cinnamon."
+    ]
+  },
+  {
+    "title": "Cheese and oregano tapioca crepes",
+    "category": "Breakfast",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "hydrated tapioca starch",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "mozzarella cheese",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "dried oregano",
+        "quantity": 0.5,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "Heat a nonstick skillet over medium heat.",
+      "Spread half the hydrated tapioca starch in an even layer and heat for about 2 minutes, until it holds together.",
+      "Place half the cheese and oregano on one side. Fold and heat until the cheese melts. Repeat with the remaining ingredients."
+    ]
+  },
+  {
+    "title": "Yogurt with papaya and oats",
+    "category": "Breakfast",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "plain yogurt",
+        "quantity": 340,
+        "unit": "g"
+      },
+      {
+        "name": "peeled and seeded papaya",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "name": "rolled oats",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "honey",
+        "quantity": 1,
+        "unit": "tbsp"
+      }
+    ],
+    "steps": [
+      "Dice the papaya.",
+      "Divide the yogurt between two bowls and add the papaya.",
+      "Sprinkle with the oats, drizzle with honey and serve immediately."
+    ]
+  },
+  {
+    "title": "Rice with carrots and peas",
+    "category": "Main dishes",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "uncooked rice",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "hot water",
+        "quantity": 450,
+        "unit": "ml"
+      },
+      {
+        "name": "grated carrot",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "frozen peas",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 0.5,
+        "unit": "piece"
+      },
+      {
+        "name": "minced garlic",
+        "quantity": 1,
+        "unit": "clove"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 3,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Heat the olive oil and cook the onion and garlic until softened. Add the rice and stir for 1 minute.",
+      "Add the carrot, hot water and salt. Cook over low heat, partially covered, for about 12 minutes.",
+      "Add the peas and cook for another 5 minutes, or until the rice is tender and the water is absorbed. Add a little more hot water if needed. Turn off the heat and let stand, covered, for 5 minutes."
+    ]
+  },
+  {
+    "title": "Pasta with tomato sauce",
+    "category": "Main dishes",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "dry pasta",
+        "quantity": 320,
+        "unit": "g"
+      },
+      {
+        "name": "peeled tomatoes with their juice",
+        "quantity": 400,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 3,
+        "unit": "l"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "minced garlic",
+        "quantity": 2,
+        "unit": "cloves"
+      },
+      {
+        "name": "salt",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "basil",
+        "quantity": 8,
+        "unit": "leaves"
+      }
+    ],
+    "steps": [
+      "Cook the onion and garlic in the olive oil until softened. Add the tomatoes, crush them with a spoon and season with 2 g of the salt.",
+      "Simmer the sauce over low heat for 15 to 20 minutes, stirring occasionally.",
+      "Bring the water to a boil with the remaining salt and cook the pasta for the time on the package. Reserve a ladle of cooking water, then drain.",
+      "Toss the pasta with the sauce. Loosen with the reserved water if needed and finish with the basil."
+    ]
+  },
+  {
+    "title": "Roast chicken with potatoes",
+    "category": "Main dishes",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "chicken thighs",
+        "quantity": 800,
+        "unit": "g"
+      },
+      {
+        "name": "potatoes",
+        "quantity": 600,
+        "unit": "g"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "crushed garlic",
+        "quantity": 3,
+        "unit": "cloves"
+      },
+      {
+        "name": "sweet paprika",
+        "quantity": 1,
+        "unit": "tsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Preheat the oven to 200 °C. Cut the potatoes into pieces about 3 cm across.",
+      "Mix the olive oil, lemon juice, garlic, paprika and salt. Coat the chicken and potatoes, then arrange in a roasting pan.",
+      "Roast for about 50 to 65 minutes, turning the potatoes halfway through, until they are tender. Use a food thermometer to check that the thickest part of the chicken has reached 74 °C without touching the bone.",
+      "Let rest for 5 minutes before serving."
+    ]
+  },
+  {
+    "title": "Lentil and vegetable stew",
+    "category": "Main dishes",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "rinsed dry lentils",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 900,
+        "unit": "ml"
+      },
+      {
+        "name": "diced carrot",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "diced zucchini",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "chopped tomato",
+        "quantity": 2,
+        "unit": "pieces"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 4,
+        "unit": "g"
+      },
+      {
+        "name": "bay leaf",
+        "quantity": 1,
+        "unit": "leaf"
+      }
+    ],
+    "steps": [
+      "Cook the onion in the olive oil until softened, then add the tomatoes. Cook for 3 minutes.",
+      "Add the lentils, carrot, water and bay leaf. Simmer over low heat for about 20 minutes.",
+      "Add the zucchini and salt and cook for another 10 to 15 minutes, until the lentils are tender. Add water if needed and remove the bay leaf before serving."
+    ]
+  },
+  {
+    "title": "Pumpkin and ginger soup",
+    "category": "Soups and broths",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "peeled and cubed pumpkin",
+        "quantity": 700,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 800,
+        "unit": "ml"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "grated ginger",
+        "quantity": 1,
+        "unit": "tsp"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 4,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Cook the onion in the olive oil for 3 minutes, then add the ginger.",
+      "Add the pumpkin, water and salt. Simmer for about 25 minutes, until the pumpkin is very tender.",
+      "Remove from the heat and blend with an immersion blender, keeping the blade submerged to prevent splashes. Return to low heat to warm through and add water to adjust the consistency if needed."
+    ]
+  },
+  {
+    "title": "Potato and leek soup",
+    "category": "Soups and broths",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "peeled and diced potatoes",
+        "quantity": 600,
+        "unit": "g"
+      },
+      {
+        "name": "washed and sliced leek",
+        "quantity": 1,
+        "unit": "stalk"
+      },
+      {
+        "name": "water",
+        "quantity": 900,
+        "unit": "ml"
+      },
+      {
+        "name": "butter",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "milk",
+        "quantity": 150,
+        "unit": "ml"
+      },
+      {
+        "name": "salt",
+        "quantity": 4,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Melt the butter and cook the leek over low heat for 5 minutes without browning.",
+      "Add the potatoes, water and salt. Simmer for 20 to 25 minutes, until the potatoes are tender.",
+      "Mash the potatoes in the pan with a potato masher. Stir in the milk and heat for another 3 minutes."
+    ]
+  },
+  {
+    "title": "Bean and pasta soup",
+    "category": "Soups and broths",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "cooked beans with their broth",
+        "quantity": 700,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 600,
+        "unit": "ml"
+      },
+      {
+        "name": "small pasta shapes",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "finely diced carrot",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 0.5,
+        "unit": "piece"
+      },
+      {
+        "name": "minced garlic",
+        "quantity": 2,
+        "unit": "cloves"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Mash half the beans and set aside.",
+      "Cook the onion and garlic in the olive oil until softened. Add all the beans, water and carrot, then simmer for 8 minutes.",
+      "Add the pasta and cook for the time on the package, stirring to prevent sticking. Season with salt and add water if the soup becomes too thick."
+    ]
+  },
+  {
+    "title": "Creamy carrot and potato soup",
+    "category": "Soups and broths",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "sliced carrots",
+        "quantity": 500,
+        "unit": "g"
+      },
+      {
+        "name": "peeled and diced potatoes",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 900,
+        "unit": "ml"
+      },
+      {
+        "name": "chopped onion",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 4,
+        "unit": "g"
+      },
+      {
+        "name": "chopped parsley",
+        "quantity": 2,
+        "unit": "tbsp"
+      }
+    ],
+    "steps": [
+      "Cook the onion in the olive oil until softened. Add the carrots, potatoes, water and salt.",
+      "Simmer for about 25 minutes, until the vegetables are very tender.",
+      "Remove from the heat and blend with an immersion blender, keeping the blade submerged. Reheat if needed and finish with the parsley."
+    ]
+  },
+  {
+    "title": "Ricotta and carrot sandwich",
+    "category": "Snacks",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "whole wheat bread",
+        "quantity": 4,
+        "unit": "slices"
+      },
+      {
+        "name": "ricotta",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "grated carrot",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "plain yogurt",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 1,
+        "unit": "g"
+      },
+      {
+        "name": "washed lettuce",
+        "quantity": 2,
+        "unit": "leaves"
+      }
+    ],
+    "steps": [
+      "Mash the ricotta with the yogurt, olive oil and salt.",
+      "Stir in the grated carrot until evenly mixed.",
+      "Spread the filling over two slices of bread, add the lettuce and top with the remaining slices. Serve immediately."
+    ]
+  },
+  {
+    "title": "Chickpea spread with toast",
+    "category": "Snacks",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "cooked and drained chickpeas",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "water",
+        "quantity": 60,
+        "unit": "ml"
+      },
+      {
+        "name": "garlic",
+        "quantity": 0.5,
+        "unit": "clove"
+      },
+      {
+        "name": "salt",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "toast",
+        "quantity": 12,
+        "unit": "pieces"
+      }
+    ],
+    "steps": [
+      "Put the chickpeas, lemon juice, olive oil, garlic and salt in a food processor.",
+      "Blend, gradually adding the water, until smooth and creamy.",
+      "Serve with the toast. Refrigerate any remaining spread in a closed container."
+    ]
+  },
+  {
+    "title": "Skillet cheese bread",
+    "category": "Snacks",
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "egg",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "tapioca starch",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "grated Parmesan cheese",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "milk",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 1,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "Beat the egg and mix in the tapioca starch, Parmesan and milk until smooth.",
+      "Grease a nonstick skillet with the olive oil and heat over low heat. Pour in half the batter.",
+      "Cover and cook for about 3 minutes. Flip and cook for another 2 to 3 minutes, until the center is firm and cooked through. Repeat with the remaining batter."
+    ]
+  },
+  {
+    "title": "Stovetop popcorn",
+    "category": "Snacks",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "popcorn kernels",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "vegetable oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "salt",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Put the oil and three popcorn kernels in a large covered pan over medium heat.",
+      "When those kernels pop, add the remaining kernels and cover. Shake the pan occasionally, holding the lid with heat protection.",
+      "When the popping slows to about 2 seconds between pops, turn off the heat. Wait until it stops, open the lid away from your face and season with salt."
+    ]
+  },
+  {
+    "title": "Baked bananas with cinnamon",
+    "category": "Desserts",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "ripe banana",
+        "quantity": 4,
+        "unit": "pieces"
+      },
+      {
+        "name": "butter",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 1,
+        "unit": "tbsp"
+      },
+      {
+        "name": "ground cinnamon",
+        "quantity": 1,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "Preheat the oven to 180 °C. Peel the bananas and cut them in half lengthwise.",
+      "Grease a small baking dish with the butter and arrange the bananas in it. Sprinkle with the sugar and cinnamon.",
+      "Bake for about 15 to 20 minutes, until soft and lightly golden. Serve warm."
+    ]
+  },
+  {
+    "title": "Spoonable chocolate fudge",
+    "category": "Desserts",
+    "servings": 6,
+    "ingredients": [
+      {
+        "name": "sweetened condensed milk",
+        "quantity": 395,
+        "unit": "g"
+      },
+      {
+        "name": "cocoa powder",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "butter",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "cream",
+        "quantity": 100,
+        "unit": "g"
+      }
+    ],
+    "steps": [
+      "Mix the condensed milk, cocoa and butter in a heavy-bottomed saucepan.",
+      "Cook over low heat, stirring constantly, for about 8 to 12 minutes, until thickened and the bottom of the pan starts to show when you drag a spatula through the mixture.",
+      "Turn off the heat, stir in the cream and divide between small serving cups. Let cool until warm before serving, or refrigerate once cooled."
+    ]
+  },
+  {
+    "title": "Cinnamon rice pudding",
+    "category": "Desserts",
+    "servings": 6,
+    "ingredients": [
+      {
+        "name": "uncooked rice",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "water",
+        "quantity": 400,
+        "unit": "ml"
+      },
+      {
+        "name": "milk",
+        "quantity": 700,
+        "unit": "ml"
+      },
+      {
+        "name": "sugar",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "cinnamon stick",
+        "quantity": 1,
+        "unit": "piece"
+      },
+      {
+        "name": "ground cinnamon",
+        "quantity": 0.5,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "Cook the rice with the water and cinnamon stick over low heat until most of the water is absorbed.",
+      "Add the milk and cook, stirring frequently, for about 20 minutes, until the rice is very tender.",
+      "Add the sugar and cook for another 5 minutes. Remove the cinnamon stick, divide between bowls and sprinkle with ground cinnamon. Serve warm or chilled."
+    ]
+  },
+  {
+    "title": "Chocolate pudding",
+    "category": "Desserts",
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "milk",
+        "quantity": 500,
+        "unit": "ml"
+      },
+      {
+        "name": "cornstarch",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "cocoa powder",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "sugar",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "vanilla extract",
+        "quantity": 0.5,
+        "unit": "tsp"
+      }
+    ],
+    "steps": [
+      "With the heat off, whisk the cornstarch, cocoa and sugar into the milk in a saucepan until dissolved.",
+      "Cook over medium heat, stirring constantly, until thickened and bubbling. Reduce the heat and cook for another 2 minutes.",
+      "Turn off the heat, stir in the vanilla and divide between four serving cups. Let cool until warm, then refrigerate for at least 2 hours before serving."
+    ]
+  }
+]
