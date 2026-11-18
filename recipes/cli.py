@@ -7,6 +7,7 @@ import sqlite3
 import sys
 
 from .model import validate_recipe
+from .menu import run_menu
 from .storage import delete_recipe, get_recipe, list_recipes, open_database, save_recipe
 
 
@@ -14,7 +15,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Gerenciador local de receitas culinárias.")
     parser.add_argument("--db", type=Path, default=Path.home() / ".gerenciador-receitas" / "recipes.db",
                         help="Caminho do banco SQLite (informe antes do comando).")
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
+    commands.add_parser("menu", help="Abrir o menu interativo para cadastrar e editar receitas.")
     commands.add_parser("list", help="Listar receitas cadastradas.")
     show = commands.add_parser("show", help="Mostrar uma receita em JSON.")
     show.add_argument("id", type=int)
@@ -27,6 +29,8 @@ def main(argv=None):
     delete.add_argument("id", type=int)
     delete.add_argument("--yes", action="store_true", help="Confirmar a exclusão definitiva.")
     args = parser.parse_args(argv)
+    if args.command in (None, "menu"):
+        return run_menu(args.db)
     try:
         if args.command == "delete" and not args.yes:
             raise ValueError("Para confirmar a exclusão definitiva, repita o comando com --yes.")

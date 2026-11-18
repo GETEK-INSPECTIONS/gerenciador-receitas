@@ -11,6 +11,29 @@ criar conta nem configurar serviços externos. Execute os comandos na raiz do pr
 
 ## Uso rápido no Windows
 
+Abra o menu interativo para cadastrar e editar sem arquivos JSON:
+
+```powershell
+py -3.13 -m recipes
+```
+
+Escolha `1` para cadastrar, `2` para listar, `3` para consultar, `4` para editar
+ou `0` para sair. O programa pergunta título, porções, ingredientes e preparo.
+
+- Quantidades aceitam ponto ou vírgula decimal, como `0,5`.
+- Após incluir um ingrediente, deixe o próximo nome vazio para concluir a lista.
+- Após incluir uma etapa, deixe a próxima linha vazia para concluir o preparo.
+- Na edição, Enter mantém título e porções. Responda `s` para substituir a lista
+  de ingredientes ou de etapas; Enter mantém a lista atual.
+- Digite `:cancelar` em qualquer pergunta para voltar ao menu sem salvar a operação.
+- A receita é salva ao completar o formulário. `Ctrl+C` ou fim da entrada encerra
+  o menu; formulários incompletos não são gravados e receitas já salvas permanecem.
+
+Também é possível executar `py -3.13 -m recipes menu` ou escolher outro banco com
+`py -3.13 -m recipes --db dados/teste.db menu`.
+
+Os comandos diretos com arquivos JSON continuam disponíveis:
+
 ```powershell
 py -3.13 -m recipes --help
 py -3.13 -m recipes add examples/panquecas.json
@@ -76,6 +99,8 @@ py -3.13 -m unittest discover -s tests -v
 Os testes executam a interface real em subprocessos com bancos temporários.
 Cobrem persistência entre execuções, cadastro, edição, consulta, exclusão,
 confirmação de exclusão, dados inválidos, arquivos ausentes e IDs inexistentes.
+Também cobrem cadastro e edição pelo menu, preservação de campos, cancelamento,
+valores inválidos, consulta legível e encerramento durante um formulário.
 Não acessam nem alteram o banco pessoal.
 
 Códigos de saída: `0` para sucesso, `1` para erro de dados/armazenamento,
@@ -87,13 +112,14 @@ Códigos de saída: `0` para sucesso, `1` para erro de dados/armazenamento,
 recipes/
   __main__.py     Entrada do programa
   cli.py          Comandos e mensagens
+  menu.py         Menu e formulários interativos
   model.py        Validação de receitas
   storage.py      Transações e armazenamento SQLite
 examples/        Receita de exemplo
 tests/           Testes de integração da CLI
 ```
 
-Esta versão é local e usa arquivos JSON para entrada. Não contém interface gráfica,
+Esta versão é local e oferece menu interativo e entrada opcional por JSON. Não contém interface gráfica,
 sincronização, conversão de unidades ou ajuste automático de porções.
 
 ## Licença

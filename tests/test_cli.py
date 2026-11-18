@@ -31,11 +31,12 @@ class RecipeCliTests(unittest.TestCase):
     def write_recipe(self):
         self.source.write_text(json.dumps(self.recipe, ensure_ascii=False), encoding="utf-8")
 
-    def cli(self, *args, expected=0):
+    def cli(self, *args, expected=0, input_text=None):
         env = dict(os.environ, PYTHONUTF8="1")
         result = subprocess.run(
             [sys.executable, "-m", "recipes", "--db", str(self.database), *args],
             cwd=ROOT, capture_output=True, text=True, encoding="utf-8", env=env,
+            input=input_text, timeout=10,
         )
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         if expected == 1:
@@ -106,6 +107,64 @@ class RecipeCliTests(unittest.TestCase):
     def test_help_does_not_create_database(self):
         self.assertIn("add", self.cli("--help").stdout)
         self.assertFalse(self.database.exists())
+
+    def test_menu_creates_recipe_without_json_file(self):
+        self.cli(input_text="1\nVitamina\n2\nLeite\n0,5\nl\nBanana\n2\nunidades\n\nBata tudo.\nSirva.\n\n0\n")
+        recipe = json.loads(self.cli("show", "1").stdout)
+        self.assertEqual(recipe, {
+            "title": "Vitamina", "servings": 2,
+            "ingredients": [{"name": "Leite", "quantity": 0.5, "unit": "l"},
+                            {"name": "Banana", "quantity": 2, "unit": "unidades"}],
+            "steps": ["Bata tudo.", "Sirva."],
+        })
+
+    def test_menu_edit_retains_fields_when_enter_is_pressed(self):
+        self.cli("add", str(self.source))
+        self.cli("menu", input_text="4\n1\nPanquecas novas\n\n\n\n0\n")
+        expected = dict(self.recipe, title="Panquecas novas")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), expected)
+
+    def test_menu_edit_replaces_ingredients_and_steps(self):
+        self.cli("add", str(self.source))
+        self.cli("menu", input_text="4\n1\n\n4\ns\nFarinha\n50\ng\n\ns\nMisture.\nAsse.\n\n0\n")
+        recipe = json.loads(self.cli("show", "1").stdout)
+        self.assertEqual(recipe["title"], self.recipe["title"])
+        self.assertEqual(recipe["servings"], 4)
+        self.assertEqual(recipe["ingredients"], [{"name": "Farinha", "quantity": 50, "unit": "g"}])
+        self.assertEqual(recipe["steps"], ["Misture.", "Asse."])
+
+    def test_menu_cancel_does_not_save_partial_edit_or_creation(self):
+        self.cli("add", str(self.source))
+        self.cli("menu", input_text="4\n1\nOutro título\n4\ns\n:cancelar\n1\nNova\n:cancelar\n0\n")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+        self.cli("show", "2", expected=1)
+
+    def test_menu_reprompts_invalid_fields_and_accepts_valid_values(self):
+        result = self.cli("menu", input_text="9\n1\n\nSopa\nzero\n0\n10001\n2\n\nÁgua\nnan\ninf\n-1\n1,5\n\nl\n\n\nFerva.\n\n0\n")
+        recipe = json.loads(self.cli("show", "1").stdout)
+        self.assertEqual(recipe["title"], "Sopa")
+        self.assertEqual(recipe["servings"], 2)
+        self.assertEqual(recipe["ingredients"], [{"name": "Água", "quantity": 1.5, "unit": "l"}])
+        self.assertEqual(recipe["steps"], ["Ferva."])
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_menu_eof_keeps_completed_save_but_discards_partial_edit(self):
+        self.cli("menu", input_text="1\nChá\n1\nÁgua\n200\nml\n\nFerva.\n\n4\n1\nOutro título\n")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout)["title"], "Chá")
+
+    def test_menu_lists_and_displays_recipe_in_readable_format(self):
+        self.cli("add", str(self.source))
+        result = self.cli("menu", input_text="2\n3\n1\n0\n")
+        self.assertIn("Panquecas de banana", result.stdout)
+        self.assertIn("30 g", result.stdout)
+        self.assertIn("Amasse a banana.", result.stdout)
+        self.assertNotIn('"ingredients":', result.stdout)
+
+    def test_menu_empty_database_and_missing_recipe_return_to_menu(self):
+        result = self.cli("menu", input_text="2\n3\nabc\n-1\n999\n4\n999\n0\n")
+        self.assertIn("Nenhuma receita", result.stdout)
+        self.assertIn("não encontrada", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":
