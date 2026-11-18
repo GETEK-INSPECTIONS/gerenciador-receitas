@@ -3,6 +3,12 @@
 import math
 
 
+def validate_servings(servings):
+    if type(servings) is not int or not 1 <= servings <= 10000:
+        raise ValueError("servings must be an integer between 1 and 10000.")
+    return servings
+
+
 def validate_recipe(value):
     fields = {"title", "servings", "ingredients", "steps"}
     if not isinstance(value, dict) or not fields <= set(value) or set(value) - fields - {"category"}:
@@ -13,8 +19,7 @@ def validate_recipe(value):
     if not isinstance(title, str) or not title.strip():
         raise ValueError("title must be a non-empty string.")
     servings = value["servings"]
-    if type(servings) is not int or not 1 <= servings <= 10000:
-        raise ValueError("servings must be an integer between 1 and 10000.")
+    validate_servings(servings)
     ingredients = value["ingredients"]
     if not isinstance(ingredients, list) or not ingredients:
         raise ValueError("ingredients must contain at least one ingredient.")
