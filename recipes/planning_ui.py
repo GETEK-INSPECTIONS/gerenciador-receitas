@@ -3,7 +3,8 @@
 from datetime import date, timedelta
 import sqlite3
 
-from .calculations import format_quantity, scale_ingredients, shopping_list
+from .calculations import scale_ingredients, shopping_list
+from .display import heading, ingredient_table, pause, recipe_table, render_table
 from .planning import MEALS, WEEKDAYS, add_meal, list_meals, remove_meal, week_start
 from .prompts import Cancelled, number, read, text
 from .storage import get_recipe, list_recipes, open_database
@@ -15,9 +16,7 @@ def recipe_choices(database):
     if not recipes:
         print("No recipes found.")
         return False
-    print("\nAvailable recipes:")
-    for recipe_id, recipe in recipes:
-        print(f"  {recipe_id}. {recipe['title']} ({recipe['servings']} servings)")
+    recipe_table(recipes, "Choose a recipe")
     return True
 
 
@@ -28,9 +27,8 @@ def serving_preview(database):
     with open_database(database) as connection:
         recipe = get_recipe(connection, recipe_id)
     servings = number("Target servings", 10000, integer=True, default=recipe["servings"])
-    print(f"\n{recipe['title']} — {servings} servings")
-    for item in scale_ingredients(recipe, servings):
-        print(f"  - {format_quantity(item['quantity'])} {item['unit']} {item['name']}")
+    heading(recipe["title"], f"Serving preview | Original: {recipe['servings']} | Target: {servings}")
+    ingredient_table(scale_ingredients(recipe, servings))
     print("Preview only: the saved recipe is unchanged.")
     print("~ marks rounded amounts. Cooking times are not automatically adjusted.")
 
@@ -40,11 +38,10 @@ def show_shopping_list(selections):
     if not items:
         print("No ingredients selected.")
         return
-    print("\n=== Shopping list ===")
-    for item in items:
-        print(f"[ ] {format_quantity(item['quantity'])} {item['unit']} {item['name']}")
+    heading("SHOPPING LIST", f"{len(selections)} recipe selections | Ready for your next meals")
+    ingredient_table(items, shopping=True)
     print(f"{len(items)} ingredient lines. ~ marks rounded amounts.")
-    print("Matching names and units are combined; different units remain separate.")
+    print("Metric totals combine g/kg and ml/L. Other unit families remain separate.")
 
 
 def shopping_menu(database):
@@ -82,18 +79,20 @@ def choose_week(default=None):
 
 
 def show_week(entries, start):
-    print(f"\n=== Week of {start.isoformat()} ===")
+    heading("WEEKLY MEAL PLAN", f"{start} to {start + timedelta(days=6)} | {len(entries)} meals")
     if not entries:
         print("No meals planned for this week.")
+    rows = []
     for offset, weekday in enumerate(WEEKDAYS):
         day = (start + timedelta(days=offset)).isoformat()
-        print(f"\n{weekday} {day}")
         scheduled = [entry for entry in entries if entry["day"] == day]
-        for entry in scheduled:
-            print(f"  #{entry['id']} {entry['meal']}: {entry['recipe']['title']}"
-                  f" — {entry['servings']} servings")
+        for index, entry in enumerate(scheduled):
+            rows.append([f"{weekday} {day}" if index == 0 else "",
+                         f"#{entry['id']} {entry['meal']}: {entry['recipe']['title']}"
+                         f" / {entry['servings']} servings"])
         if not scheduled:
-            print("  (no meals)")
+            rows.append([f"{weekday} {day}", "(no meals)"])
+    print(render_table(["Day", "Planned meals"], rows))
 
 
 def confirm_removal(entry_id):
@@ -111,9 +110,10 @@ def weekly_menu(database):
     while True:
         try:
             end = start + timedelta(days=6)
-            print(f"\n=== Weekly planner: {start} to {end} ===\n"
-                  "1. View week\n2. Add meal\n3. Remove meal\n"
-                  "4. Weekly shopping list\n5. Change week\n0. Back")
+            heading("WEEKLY PLANNER", f"{start} to {end}")
+            print(render_table(["Key", "Action"], [
+                [1, "View week"], [2, "Add meal"], [3, "Remove meal"],
+                [4, "Weekly shopping list"], [5, "Change week"], [0, "Back"]]))
             option = read("Choose an option: ")
             if option == "0":
                 return
@@ -141,6 +141,7 @@ def weekly_menu(database):
                         print(f"Meal entry #{entry_id} removed.")
                     else:
                         print("Meal entry kept.")
+                pause()
             elif option == "2":
                 if not recipe_choices(database):
                     continue

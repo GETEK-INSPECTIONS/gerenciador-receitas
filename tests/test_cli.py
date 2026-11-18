@@ -251,16 +251,16 @@ class RecipeCliTests(unittest.TestCase):
     def test_menu_serving_preview_changes_quantities_without_saving(self):
         self.cli("add", str(self.source))
         result = self.cli("menu", input_text="7\n1\n0\n3\n0\n")
-        self.assertIn("45 g oats", result.stdout)
-        self.assertIn("1.5 piece banana", result.stdout)
+        self.assertRegex(result.stdout, r"45 g\s+\|\s+oats")
+        self.assertRegex(result.stdout, r"1.5 piece\s+\|\s+banana")
         self.assertIn("Preview only", result.stdout)
         self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
 
     def test_menu_shopping_list_combines_repeated_recipe_selections(self):
         self.cli("add", str(self.source))
         result = self.cli("menu", input_text="8\n999\n1\n2\n1\n4\n\n0\n")
-        self.assertIn("[ ] 90 g oats", result.stdout)
-        self.assertIn("[ ] 3 piece banana", result.stdout)
+        self.assertRegex(result.stdout, r"\[ \]\s+\|\s+oats\s+\|\s+90 g")
+        self.assertRegex(result.stdout, r"\[ \]\s+\|\s+banana\s+\|\s+3 piece")
         self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
 
     def test_menu_weekly_plan_persists_and_generates_shopping_list(self):
@@ -269,10 +269,26 @@ class RecipeCliTests(unittest.TestCase):
         self.assertIn("Monday 2026-11-16", result.stdout)
         self.assertIn("Sunday 2026-11-22", result.stdout)
         self.assertIn("Lunch: Banana pancakes", result.stdout)
-        self.assertIn("[ ] 90 g oats", result.stdout)
+        self.assertRegex(result.stdout, r"\[ \]\s+\|\s+oats\s+\|\s+90 g")
         persisted = self.cli("menu", input_text="9\n2026-11-18\n1\n0\n0\n")
         self.assertIn("#1 Lunch: Banana pancakes", persisted.stdout)
         self.assertIn("planned meals", self.cli("delete", "1", "--yes", expected=1).stderr)
+
+    def test_manual_and_weekly_lists_convert_metric_units(self):
+        self.recipe["ingredients"] = [{"name": "flour", "quantity": 500, "unit": "g"},
+                                      {"name": "milk", "quantity": 250, "unit": "ml"}]
+        self.write_recipe()
+        self.cli("add", str(self.source))
+        self.recipe["ingredients"] = [{"name": "flour", "quantity": 1, "unit": "kg"},
+                                      {"name": "milk", "quantity": 1, "unit": "l"}]
+        self.write_recipe()
+        self.cli("add", str(self.source))
+        manual = self.cli("menu", input_text="8\n1\n2\n2\n2\n\n0\n")
+        self.assertRegex(manual.stdout, r"flour\s+\|\s+1.5 kg")
+        self.assertRegex(manual.stdout, r"milk\s+\|\s+1.25 L")
+        weekly = self.cli("menu", input_text="9\n2026-11-16\n2\n1\n2\n1\n2\n2\n2\n2\n2\n2\n4\n0\n0\n")
+        self.assertRegex(weekly.stdout, r"flour\s+\|\s+1.5 kg")
+        self.assertRegex(weekly.stdout, r"milk\s+\|\s+1.25 L")
 
     def test_menu_remove_meal_requires_confirmation_and_preserves_recipe(self):
         self.cli("add", str(self.source))

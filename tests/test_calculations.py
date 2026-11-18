@@ -2,7 +2,7 @@ from copy import deepcopy
 from fractions import Fraction
 import unittest
 
-from recipes.calculations import format_quantity, scale_ingredients, shopping_list
+from recipes.calculations import format_measure, format_quantity, scale_ingredients, shopping_list
 
 
 def recipe(quantity=200, unit="g", name="rice", servings=4):
@@ -49,11 +49,43 @@ class CalculationTests(unittest.TestCase):
 
     def test_different_units_and_ingredient_names_remain_separate(self):
         items = shopping_list([(recipe(100, "g", "rice", 1), 1),
-                               (recipe(1, "kg", "rice", 1), 1),
+                               (recipe(1, "ml", "rice", 1), 1),
                                (recipe(50, "g", "brown rice", 1), 1)])
         self.assertEqual(len(items), 3)
         self.assertEqual({(item["name"], item["unit"]) for item in items},
-                         {("rice", "g"), ("rice", "kg"), ("brown rice", "g")})
+                         {("rice", "g"), ("rice", "ml"), ("brown rice", "g")})
+
+    def test_mass_conversion_uses_exact_grams_without_mutating_sources(self):
+        first, second = recipe(500, "g", "flour", 1), recipe(1, "kilograms", "FLOUR", 1)
+        before = deepcopy([first, second])
+        items = shopping_list([(first, 1), (second, 1)])
+        self.assertEqual(len(items), 1)
+        self.assertEqual((items[0]["quantity"], items[0]["unit"]), (1500, "g"))
+        self.assertEqual(format_measure(items[0]["quantity"], items[0]["unit"]), "1.5 kg")
+        self.assertEqual([first, second], before)
+
+    def test_volume_conversion_handles_aliases_case_and_serving_scaling(self):
+        items = shopping_list([(recipe(250, "mL", "milk", 1), 1),
+                               (recipe(0.5, "LITRES", "Milk", 1), 2)])
+        self.assertEqual(len(items), 1)
+        self.assertEqual((items[0]["quantity"], items[0]["unit"]), (1250, "ml"))
+        self.assertEqual(format_measure(1250, "ml"), "1.25 L")
+
+    def test_metric_display_threshold_and_fractional_conversion(self):
+        self.assertEqual(format_measure(999, "g"), "999 g")
+        self.assertEqual(format_measure(1000, "g"), "1 kg")
+        self.assertEqual(format_measure(999, "ml"), "999 ml")
+        self.assertEqual(format_measure(1000, "ml"), "1 L")
+        items = shopping_list([(recipe(0.1, "kg", servings=3), 1),
+                               (recipe(100, "g", servings=1), 1)])
+        self.assertEqual(items[0]["quantity"], Fraction(400, 3))
+
+    def test_unknown_units_and_volume_mass_are_never_guessed(self):
+        items = shopping_list([(recipe(1, "kg", "sugar", 1), 1),
+                               (recipe(1, "l", "sugar", 1), 1),
+                               (recipe(1, "cup", "sugar", 1), 1)])
+        self.assertEqual({(item["quantity"], item["unit"]) for item in items},
+                         {(1000, "g"), (1000, "ml"), (1, "cup")})
 
     def test_case_sensitive_spoon_abbreviations_are_not_merged(self):
         items = shopping_list([(recipe(1, "T", "sugar", 1), 1),

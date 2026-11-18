@@ -1,11 +1,13 @@
 """Shared terminal input and cancellation helpers."""
 
+from .display import color
+
 class Cancelled(Exception):
     """The user cancelled the current operation before saving."""
 
 
 def read(prompt):
-    value = input(prompt).strip()
+    value = input(color(prompt, "accent")).strip()
     if value.casefold() == ":cancel":
         raise Cancelled
     return value

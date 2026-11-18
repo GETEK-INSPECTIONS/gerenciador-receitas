@@ -34,10 +34,14 @@ def shopping_list(selections):
             # In cooking notation, uppercase T and lowercase t are different units.
             unit = {"T": "tbsp", "t": "tsp"}.get(unit, unit.casefold())
             unit = UNIT_ALIASES.get(unit, unit)
+            quantity = item["quantity"]
+            if unit in ("kg", "l"):
+                quantity *= 1000
+                unit = {"kg": "g", "l": "ml"}[unit]
             key = (name.casefold(), unit)
             if key not in totals:
                 totals[key] = {"name": name, "unit": unit, "quantity": Fraction(0)}
-            totals[key]["quantity"] += item["quantity"]
+            totals[key]["quantity"] += quantity
     return [totals[key] for key in sorted(totals)]
 
 
@@ -50,3 +54,12 @@ def format_quantity(value):
         displayed = format(rounded, "f" if -6 <= rounded.adjusted() < 9 else "g")
     # Calculations remain exact; mark only display rounding as approximate.
     return ("~" if Fraction(displayed) != quantity else "") + displayed
+
+
+def format_measure(quantity, unit):
+    """Use larger metric units for shopping totals of at least 1000 g/ml."""
+    quantity = Fraction(str(quantity))
+    if unit in ("g", "ml") and quantity >= 1000:
+        quantity /= 1000
+        unit = {"g": "kg", "ml": "l"}[unit]
+    return f"{format_quantity(quantity)} {'L' if unit == 'l' else unit}"

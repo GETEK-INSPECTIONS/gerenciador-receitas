@@ -53,6 +53,17 @@ and accents remain significant.
 
 You can also open the menu with `py -3.13 -m recipes menu`.
 
+### Terminal appearance
+
+The menu groups actions into Collection, Discover and Plan & Cook. Recipe lists,
+ingredients and weekly plans use aligned tables, with wrapped content and stacked
+records in narrow windows. Titles and prompts use color when the terminal supports
+it; redirected output remains plain text. Set the `NO_COLOR` environment variable
+to disable color.
+
+In an interactive terminal, results stay visible until you press Enter to return.
+Piped input keeps the original non-interactive flow without extra pauses.
+
 ## Serving sizes and shopping lists
 
 Choose **7** to select a recipe and a target serving count (1–10000).
@@ -70,8 +81,20 @@ or repeated whitespace. Common unit spellings such as `piece/pieces`,
 `gram/grams/g` and `tablespoon/tbsp` are treated as equivalent.
 The case-sensitive cooking abbreviations `T` (tablespoon) and `t` (teaspoon)
 remain distinct.
-Different units stay separate: 500 g and 1 kg are **not** automatically converted
-or combined. Different names such as `onion` and `chopped onion` also stay separate.
+Shopping lists automatically combine compatible metric units for matching
+ingredient names: `g/kg` and `ml/l`, including their supported spelling aliases.
+Both manual lists and weekly lists use exact conversions after serving adjustments.
+
+| Selected amounts | Shopping total |
+| --- | --- |
+| 500 g + 1 kg of flour | 1.5 kg flour |
+| 250 ml + 1 l of milk | 1.25 L milk |
+| 200 g + 300 g of rice | 500 g rice |
+
+Totals below 1000 stay in g or ml; totals of at least 1000 display in kg or L.
+The saved recipes and their original units are unchanged. Mass and volume are
+never combined, and cups, spoons and unknown units are not converted.
+Different names such as `onion` and `chopped onion` stay separate.
 
 ## Weekly meal planner
 
@@ -126,7 +149,8 @@ plus optional `category`. Older recipes without categories remain valid.
 - `category`: a non-empty string when present; otherwise displayed as `Uncategorized`.
 - `servings`: an integer between 1 and 10000.
 - `ingredients`: a non-empty list of objects with `name`, `quantity` and `unit`.
-- `name` and `unit`: non-empty strings. Units are free text and are not converted.
+- `name` and `unit`: non-empty strings. Original units are stored as entered;
+  supported metric conversions apply only when generating shopping lists.
 - `quantity`: a positive, finite number no greater than 1000000000.
   JSON numbers use a decimal point.
 - `steps`: a non-empty list of non-empty strings.
@@ -167,7 +191,8 @@ Tests run the real CLI in subprocesses with temporary databases. They cover
 persistence, creation, editing, viewing, deletion, confirmation, invalid input,
 missing files and IDs, interactive forms, cancellation, categories,
 case-insensitive search, empty results, exact serving calculations, ingredient
-aggregation, weekly persistence, date boundaries and recipe deletion protection.
+aggregation, metric conversion, responsive terminal layouts, weekly persistence,
+date boundaries and recipe deletion protection.
 They do not access or modify your personal database.
 
 Exit codes: `0` for success, `1` for data/storage errors in direct commands,
@@ -182,6 +207,7 @@ recipes/
   cli.py          Direct commands and messages
   menu.py         Interactive menu and forms
   prompts.py      Shared input validation and cancellation
+  display.py      Terminal layouts, tables and optional color
   model.py        Recipe validation
   storage.py      SQLite transactions and filtering
   calculations.py Exact serving and shopping-list calculations
@@ -192,8 +218,8 @@ tests/           CLI integration tests
 ```
 
 This version runs locally with an interactive menu and optional JSON input.
-It does not include a graphical interface, synchronization or automatic
-conversion between measurement units.
+It does not include a graphical interface, synchronization or conversion between
+mass and volume, cups or spoon measures.
 
 ## License
 
