@@ -82,6 +82,7 @@ def steps():
 
 def show(recipe):
     print(f"\n{recipe['title']} — {recipe['servings']} porções")
+    print(f"Categoria: {recipe.get('category', 'Sem categoria')}")
     print("Ingredientes:")
     for item in recipe["ingredients"]:
         print(f"  - {item['quantity']} {item['unit']} de {item['name']}")
@@ -100,8 +101,11 @@ def edit_form(current=None):
     servings = number("Porções", 10000, integer=True, default=previous.get("servings"))
     items = ingredients() if current is None or replace_list("os ingredientes") else current["ingredients"]
     preparation = steps() if current is None or replace_list("as etapas") else current["steps"]
-    return validate_recipe({"title": title, "servings": servings,
-                            "ingredients": items, "steps": preparation})
+    category = text("Categoria (Enter mantém; opcional para receitas sem categoria)", previous.get("category", ""))
+    recipe = {"title": title, "servings": servings, "ingredients": items, "steps": preparation}
+    if category:
+        recipe["category"] = category
+    return validate_recipe(recipe)
 
 
 def run_menu(database):
@@ -118,7 +122,8 @@ def run_menu(database):
                     with open_database(database) as connection:
                         rows = list_recipes(connection)
                     for recipe_id, recipe in rows:
-                        print(f"{recipe_id}: {recipe['title']} ({recipe['servings']} porções)")
+                        print(f"{recipe_id}: {recipe['title']} ({recipe['servings']} porções)"
+                              f" — {recipe.get('category', 'Sem categoria')}")
                     if not rows:
                         print("Nenhuma receita cadastrada.")
                 elif option in ("1", "3", "4"):

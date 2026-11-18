@@ -42,6 +42,7 @@ def main(argv=None):
                 rows = list_recipes(connection)
                 output = "\n".join(
                     f"{recipe_id}: {item['title']} ({item['servings']} porções)"
+                    f" — {item.get('category', 'Sem categoria')}"
                     for recipe_id, item in rows
                 ) or "Nenhuma receita cadastrada."
             elif args.command == "show":

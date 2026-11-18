@@ -5,8 +5,10 @@ import math
 
 def validate_recipe(value):
     fields = {"title", "servings", "ingredients", "steps"}
-    if not isinstance(value, dict) or set(value) != fields:
-        raise ValueError("A receita deve conter somente title, servings, ingredients e steps.")
+    if not isinstance(value, dict) or not fields <= set(value) or set(value) - fields - {"category"}:
+        raise ValueError("A receita deve conter title, servings, ingredients e steps; category é opcional.")
+    if "category" in value and (not isinstance(value["category"], str) or not value["category"].strip()):
+        raise ValueError("category deve ser um texto não vazio, quando informado.")
     title = value["title"]
     if not isinstance(title, str) or not title.strip():
         raise ValueError("title deve ser um texto não vazio.")

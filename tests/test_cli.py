@@ -109,7 +109,7 @@ class RecipeCliTests(unittest.TestCase):
         self.assertFalse(self.database.exists())
 
     def test_menu_creates_recipe_without_json_file(self):
-        self.cli(input_text="1\nVitamina\n2\nLeite\n0,5\nl\nBanana\n2\nunidades\n\nBata tudo.\nSirva.\n\n0\n")
+        self.cli(input_text="1\nVitamina\n2\nLeite\n0,5\nl\nBanana\n2\nunidades\n\nBata tudo.\nSirva.\n\n\n0\n")
         recipe = json.loads(self.cli("show", "1").stdout)
         self.assertEqual(recipe, {
             "title": "Vitamina", "servings": 2,
@@ -120,13 +120,13 @@ class RecipeCliTests(unittest.TestCase):
 
     def test_menu_edit_retains_fields_when_enter_is_pressed(self):
         self.cli("add", str(self.source))
-        self.cli("menu", input_text="4\n1\nPanquecas novas\n\n\n\n0\n")
+        self.cli("menu", input_text="4\n1\nPanquecas novas\n\n\n\n\n0\n")
         expected = dict(self.recipe, title="Panquecas novas")
         self.assertEqual(json.loads(self.cli("show", "1").stdout), expected)
 
     def test_menu_edit_replaces_ingredients_and_steps(self):
         self.cli("add", str(self.source))
-        self.cli("menu", input_text="4\n1\n\n4\ns\nFarinha\n50\ng\n\ns\nMisture.\nAsse.\n\n0\n")
+        self.cli("menu", input_text="4\n1\n\n4\ns\nFarinha\n50\ng\n\ns\nMisture.\nAsse.\n\n\n0\n")
         recipe = json.loads(self.cli("show", "1").stdout)
         self.assertEqual(recipe["title"], self.recipe["title"])
         self.assertEqual(recipe["servings"], 4)
@@ -140,7 +140,7 @@ class RecipeCliTests(unittest.TestCase):
         self.cli("show", "2", expected=1)
 
     def test_menu_reprompts_invalid_fields_and_accepts_valid_values(self):
-        result = self.cli("menu", input_text="9\n1\n\nSopa\nzero\n0\n10001\n2\n\nÁgua\nnan\ninf\n-1\n1,5\n\nl\n\n\nFerva.\n\n0\n")
+        result = self.cli("menu", input_text="9\n1\n\nSopa\nzero\n0\n10001\n2\n\nÁgua\nnan\ninf\n-1\n1,5\n\nl\n\n\nFerva.\n\n\n0\n")
         recipe = json.loads(self.cli("show", "1").stdout)
         self.assertEqual(recipe["title"], "Sopa")
         self.assertEqual(recipe["servings"], 2)
@@ -149,7 +149,7 @@ class RecipeCliTests(unittest.TestCase):
         self.assertNotIn("Traceback", result.stderr)
 
     def test_menu_eof_keeps_completed_save_but_discards_partial_edit(self):
-        self.cli("menu", input_text="1\nChá\n1\nÁgua\n200\nml\n\nFerva.\n\n4\n1\nOutro título\n")
+        self.cli("menu", input_text="1\nChá\n1\nÁgua\n200\nml\n\nFerva.\n\n\n4\n1\nOutro título\n")
         self.assertEqual(json.loads(self.cli("show", "1").stdout)["title"], "Chá")
 
     def test_menu_lists_and_displays_recipe_in_readable_format(self):
@@ -165,6 +165,41 @@ class RecipeCliTests(unittest.TestCase):
         self.assertIn("Nenhuma receita", result.stdout)
         self.assertIn("não encontrada", result.stdout)
         self.assertNotIn("Traceback", result.stderr)
+
+    def test_category_is_saved_displayed_and_retained_on_menu_edit(self):
+        self.recipe["category"] = "Café da manhã"
+        self.write_recipe()
+        self.cli("add", str(self.source))
+        self.assertIn("Café da manhã", self.cli("list").stdout)
+        self.cli("menu", input_text="4\n1\n\n\n\n\n\n0\n")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+        self.assertIn("Categoria: Café da manhã", self.cli("menu", input_text="3\n1\n0\n").stdout)
+
+    def test_category_can_be_added_and_changed_in_menu(self):
+        self.cli("menu", input_text="1\nChá\n1\nÁgua\n200\nml\n\nFerva.\n\nBebidas\n0\n")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout)["category"], "Bebidas")
+        self.cli("menu", input_text="4\n1\n\n\n\n\nCafé da manhã\n0\n")
+        self.assertEqual(json.loads(self.cli("show", "1").stdout)["category"], "Café da manhã")
+
+    def test_invalid_category_is_rejected(self):
+        for category in ["", " ", 42, None, []]:
+            with self.subTest(category=category):
+                self.recipe["category"] = category
+                self.write_recipe()
+                self.cli("add", str(self.source), expected=1)
+
+    def test_example_collection_has_twenty_valid_recipes_in_five_categories(self):
+        from recipes.model import validate_recipe
+
+        recipes = json.loads((ROOT / "examples" / "receitas.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(recipes), 20)
+        self.assertEqual(len({recipe["title"] for recipe in recipes}), 20)
+        categories = {recipe["category"] for recipe in recipes}
+        self.assertEqual(len(categories), 5)
+        for recipe in recipes:
+            validate_recipe(recipe)
+        for category in categories:
+            self.assertEqual(sum(recipe["category"] == category for recipe in recipes), 4)
 
 
 if __name__ == "__main__":

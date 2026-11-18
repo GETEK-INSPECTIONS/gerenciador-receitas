@@ -18,12 +18,12 @@ py -3.13 -m recipes
 ```
 
 Escolha `1` para cadastrar, `2` para listar, `3` para consultar, `4` para editar
-ou `0` para sair. O programa pergunta título, porções, ingredientes e preparo.
+ou `0` para sair. O programa pergunta título, porções, ingredientes, preparo e categoria.
 
 - Quantidades aceitam ponto ou vírgula decimal, como `0,5`.
 - Após incluir um ingrediente, deixe o próximo nome vazio para concluir a lista.
 - Após incluir uma etapa, deixe a próxima linha vazia para concluir o preparo.
-- Na edição, Enter mantém título e porções. Responda `s` para substituir a lista
+- Na edição, Enter mantém título, porções e categoria. Responda `s` para substituir a lista
   de ingredientes ou de etapas; Enter mantém a lista atual.
 - Digite `:cancelar` em qualquer pergunta para voltar ao menu sem salvar a operação.
 - A receita é salva ao completar o formulário. `Ctrl+C` ou fim da entrada encerra
@@ -64,9 +64,11 @@ Sem `--yes`, a operação é recusada e a receita permanece intacta.
 ## Formato das receitas
 
 Veja [examples/panquecas.json](examples/panquecas.json). O arquivo deve ser JSON UTF-8
-com exatamente os campos `title`, `servings`, `ingredients` e `steps`.
+com os campos obrigatórios `title`, `servings`, `ingredients` e `steps`,
+e o campo opcional `category`. Receitas antigas continuam funcionando sem categoria.
 
 - `title`: texto não vazio.
+- `category`: texto não vazio, quando informado. Sem esse campo, aparece "Sem categoria".
 - `servings`: número inteiro entre 1 e 10000.
 - `ingredients`: lista não vazia de objetos com `name`, `quantity` e `unit`.
 - `name` e `unit`: textos não vazios; unidades são livres e não são convertidas.
@@ -75,6 +77,13 @@ com exatamente os campos `title`, `servings`, `ingredients` e `steps`.
 
 Títulos repetidos são permitidos; cada receita tem seu próprio ID. `show` retorna
 somente os dados da receita em JSON, que pode ser reutilizado como entrada.
+
+### Coleção de exemplos
+
+[examples/receitas.json](examples/receitas.json) reúne 20 receitas, quatro de cada
+categoria: Café da manhã, Pratos principais, Sopas e caldos, Lanches e Sobremesas.
+É uma coleção para consulta; ela não é carregada automaticamente ao iniciar o programa.
+O comando `add` aceita um único objeto de receita por arquivo, não essa lista inteira.
 
 ## Dados locais
 
