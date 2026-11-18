@@ -3,6 +3,7 @@
 A local recipe notebook for the terminal, built with Python and SQLite.
 Create, list, view, edit and delete recipes with ingredients, quantities, units,
 servings, categories and directions. Filter by category or search by name.
+Preview different serving sizes, combine shopping lists and save weekly meal plans.
 
 ## Requirements
 
@@ -28,6 +29,9 @@ on Windows, adjust the launcher version selector.
 | 4 | Edit recipe |
 | 5 | Filter by category |
 | 6 | Search by name |
+| 7 | Adjust servings (preview) |
+| 8 | Build shopping list |
+| 9 | Weekly meal planner |
 | 0 | Exit |
 
 The form asks for a title, servings, ingredients, directions and an optional category.
@@ -48,6 +52,48 @@ exact; name matching uses a literal substring. Wildcards have no special meaning
 and accents remain significant.
 
 You can also open the menu with `py -3.13 -m recipes menu`.
+
+## Serving sizes and shopping lists
+
+Choose **7** to select a recipe and a target serving count (1–10000).
+For example, a recipe with 200 g of rice for 4 servings shows 300 g for 6 servings.
+This is a preview: the saved recipe and preparation steps are not modified.
+Cooking times are not automatically adjusted.
+
+Choose **8** to select recipes and their serving counts one at a time. Press Enter
+at the recipe ID prompt to finish and display a combined checklist. Selecting the
+same recipe twice counts it twice. The selection is temporary and is not saved.
+
+Calculations use exact fractions. Displayed amounts use up to six significant
+digits; `~` marks a rounded value. Ingredient names match without regard to case
+or repeated whitespace. Common unit spellings such as `piece/pieces`,
+`gram/grams/g` and `tablespoon/tbsp` are treated as equivalent.
+Different units stay separate: 500 g and 1 kg are **not** automatically converted
+or combined. Different names such as `onion` and `chopped onion` also stay separate.
+
+## Weekly meal planner
+
+Choose **9**, then enter a date in `YYYY-MM-DD` format. Any date selects its
+Monday–Sunday week; Enter uses the current date.
+
+| Option | Action |
+| --- | --- |
+| 1 | View all seven days and their meal entries |
+| 2 | Add a meal: choose a weekday, meal type, recipe and servings |
+| 3 | Remove an entry after confirmation |
+| 4 | Generate a shopping list for all meals in the selected week |
+| 5 | Change week |
+| 0 | Return to the main menu |
+
+Meal types are Breakfast, Lunch, Dinner and Snack. A day/meal slot can contain
+multiple recipe entries. Entries are saved in SQLite and remain available after
+restarting the application. Entry IDs are separate from recipe IDs.
+
+Plans reference current recipes: editing a recipe changes future previews and
+shopping lists for its planned meals. A recipe cannot be deleted while any meal
+entry references it, including entries in other weeks. Remove those entries first.
+Removing a meal entry never deletes its recipe. Cancelling or closing an incomplete
+meal form does not save it; previously completed entries remain saved.
 
 ## Direct commands
 
@@ -118,7 +164,8 @@ py -3.13 -m unittest discover -s tests -v
 Tests run the real CLI in subprocesses with temporary databases. They cover
 persistence, creation, editing, viewing, deletion, confirmation, invalid input,
 missing files and IDs, interactive forms, cancellation, categories,
-case-insensitive search and empty results.
+case-insensitive search, empty results, exact serving calculations, ingredient
+aggregation, weekly persistence, date boundaries and recipe deletion protection.
 They do not access or modify your personal database.
 
 Exit codes: `0` for success, `1` for data/storage errors in direct commands,
@@ -132,15 +179,19 @@ recipes/
   __main__.py     Program entry point
   cli.py          Direct commands and messages
   menu.py         Interactive menu and forms
+  prompts.py      Shared input validation and cancellation
   model.py        Recipe validation
   storage.py      SQLite transactions and filtering
+  calculations.py Exact serving and shopping-list calculations
+  planning.py     Dated meal-plan storage operations
+  planning_ui.py  Serving, shopping and weekly planning menus
 examples/        Sample recipes
 tests/           CLI integration tests
 ```
 
 This version runs locally with an interactive menu and optional JSON input.
-It does not include a graphical interface, synchronization, unit conversion
-or automatic serving adjustments.
+It does not include a graphical interface, synchronization or automatic
+conversion between measurement units.
 
 ## License
 

@@ -140,7 +140,7 @@ class RecipeCliTests(unittest.TestCase):
         self.cli("show", "2", expected=1)
 
     def test_menu_reprompts_invalid_fields_and_accepts_valid_values(self):
-        result = self.cli("menu", input_text="9\n1\n\nSoup\nzero\n0\n10001\n2\n\nWater\nnan\ninf\n-1\n1,5\n\nl\n\n\nBoil.\n\n\n0\n")
+        result = self.cli("menu", input_text="99\n1\n\nSoup\nzero\n0\n10001\n2\n\nWater\nnan\ninf\n-1\n1,5\n\nl\n\n\nBoil.\n\n\n0\n")
         recipe = json.loads(self.cli("show", "1").stdout)
         self.assertEqual(recipe["title"], "Soup")
         self.assertEqual(recipe["servings"], 2)
@@ -247,6 +247,59 @@ class RecipeCliTests(unittest.TestCase):
         self.cli("add", str(self.source))
         self.assertIn("Crème brûlée", self.cli("list", "--name", "CRÈME").stdout)
         self.assertIn("No recipes found.", self.cli("list", "--name", "' OR 1=1 --").stdout)
+
+    def test_menu_serving_preview_changes_quantities_without_saving(self):
+        self.cli("add", str(self.source))
+        result = self.cli("menu", input_text="7\n1\n0\n3\n0\n")
+        self.assertIn("45 g oats", result.stdout)
+        self.assertIn("1.5 piece banana", result.stdout)
+        self.assertIn("Preview only", result.stdout)
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+
+    def test_menu_shopping_list_combines_repeated_recipe_selections(self):
+        self.cli("add", str(self.source))
+        result = self.cli("menu", input_text="8\n999\n1\n2\n1\n4\n\n0\n")
+        self.assertIn("[ ] 90 g oats", result.stdout)
+        self.assertIn("[ ] 3 piece banana", result.stdout)
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+
+    def test_menu_weekly_plan_persists_and_generates_shopping_list(self):
+        self.cli("add", str(self.source))
+        result = self.cli("menu", input_text="9\ninvalid\n2026-11-18\n2\n1\n2\n1\n6\n1\n4\n0\n0\n")
+        self.assertIn("Monday 2026-11-16", result.stdout)
+        self.assertIn("Sunday 2026-11-22", result.stdout)
+        self.assertIn("Lunch: Banana pancakes", result.stdout)
+        self.assertIn("[ ] 90 g oats", result.stdout)
+        persisted = self.cli("menu", input_text="9\n2026-11-18\n1\n0\n0\n")
+        self.assertIn("#1 Lunch: Banana pancakes", persisted.stdout)
+        self.assertIn("planned meals", self.cli("delete", "1", "--yes", expected=1).stderr)
+
+    def test_menu_remove_meal_requires_confirmation_and_preserves_recipe(self):
+        self.cli("add", str(self.source))
+        self.cli("menu", input_text="9\n2026-11-16\n2\n1\n2\n1\n2\n0\n0\n")
+        retained = self.cli("menu", input_text="9\n2026-11-16\n3\n1\n\n1\n0\n0\n")
+        self.assertIn("#1 Lunch: Banana pancakes", retained.stdout)
+        self.cli("menu", input_text="9\n2026-11-16\n3\n1\ny\n0\n0\n")
+        removed = self.cli("menu", input_text="9\n2026-11-16\n1\n4\n0\n0\n")
+        self.assertNotIn("#1 Lunch:", removed.stdout)
+        self.assertIn("No meals planned", removed.stdout)
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+
+    def test_new_menu_workflows_handle_empty_data_and_cancellation(self):
+        empty = self.cli("menu", input_text="7\n8\n9\n2026-11-16\n1\n4\n0\n0\n")
+        self.assertIn("No recipes found.", empty.stdout)
+        self.assertIn("No meals planned", empty.stdout)
+        self.cli("add", str(self.source))
+        cancelled = self.cli("menu", input_text="7\n:cancel\n8\n1\n:cancel\n9\n:cancel\n0\n")
+        self.assertIn("Operation cancelled.", cancelled.stdout)
+        self.assertEqual(json.loads(self.cli("show", "1").stdout), self.recipe)
+
+    def test_incomplete_planning_form_does_not_persist(self):
+        self.cli("add", str(self.source))
+        self.cli("menu", input_text="9\n2026-11-16\n2\n1\n2\n1\n")
+        result = self.cli("menu", input_text="9\n2026-11-16\n1\n0\n0\n")
+        self.assertNotIn("#1 Lunch:", result.stdout)
+        self.assertIn("No meals planned", result.stdout)
 
 
 if __name__ == "__main__":

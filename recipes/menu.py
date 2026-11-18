@@ -3,53 +3,9 @@
 import sqlite3
 
 from .model import validate_recipe
+from .prompts import Cancelled, number, read, replace_list, text
+from .planning_ui import serving_preview, shopping_menu, weekly_menu
 from .storage import get_recipe, list_recipes, open_database, save_recipe
-
-
-class Cancelled(Exception):
-    """The user cancelled the current operation before saving."""
-
-
-def read(prompt):
-    value = input(prompt).strip()
-    if value.casefold() == ":cancel":
-        raise Cancelled
-    return value
-
-
-def text(prompt, default=None):
-    while True:
-        value = read(f"{prompt} [{default}]: " if default is not None else f"{prompt}: ")
-        if value:
-            return value
-        if default is not None:
-            return default
-        print("Enter a non-empty value.")
-
-
-def number(prompt, maximum, *, integer=False, default=None):
-    while True:
-        raw = read(f"{prompt} [{default}]: " if default is not None else f"{prompt}: ")
-        if not raw and default is not None:
-            return default
-        try:
-            value = int(raw) if integer else float(raw.replace(",", "."))
-            if 0 < value <= maximum:
-                return value
-        except ValueError:
-            pass
-        kind = "an integer" if integer else "a number"
-        print(f"Enter {kind} greater than zero and no greater than {maximum}.")
-
-
-def replace_list(label):
-    while True:
-        answer = read(f"Replace {label}? [y/N]: ").casefold()
-        if answer in ("y", "yes"):
-            return True
-        if answer in ("", "n", "no"):
-            return False
-        print("Enter y for yes or n for no.")
 
 
 def ingredients():
@@ -115,10 +71,15 @@ def run_menu(database):
                 print("\n=== Recipe Manager ===\n"
                       "1. Create recipe\n2. List recipes\n"
                       "3. View recipe\n4. Edit recipe\n"
-                      "5. Filter by category\n6. Search by name\n0. Exit")
+                      "5. Filter by category\n6. Search by name\n"
+                      "7. Adjust servings (preview)\n8. Build shopping list\n"
+                      "9. Weekly meal planner\n0. Exit")
                 option = read("Choose an option: ")
                 if option == "0":
                     return 0
+                if option in ("7", "8", "9"):
+                    {"7": serving_preview, "8": shopping_menu, "9": weekly_menu}[option](database)
+                    continue
                 if option in ("2", "5", "6"):
                     category, name = None, None
                     if option == "5":
@@ -162,7 +123,7 @@ def run_menu(database):
                         recipe_id = save_recipe(connection, recipe, recipe_id)
                     print(f"Recipe {recipe_id} saved.")
                 else:
-                    print("Invalid option. Choose a number from 0 to 6.")
+                    print("Invalid option. Choose a number from 0 to 9.")
             except Cancelled:
                 print("Operation cancelled. No changes saved.")
             except (OSError, ValueError, sqlite3.Error) as error:
