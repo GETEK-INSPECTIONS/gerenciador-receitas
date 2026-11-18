@@ -30,7 +30,9 @@ def shopping_list(selections):
     for recipe, servings in selections:
         for item in scale_ingredients(recipe, servings):
             name = " ".join(item["name"].split())
-            unit = " ".join(item["unit"].split()).casefold()
+            unit = " ".join(item["unit"].split())
+            # In cooking notation, uppercase T and lowercase t are different units.
+            unit = {"T": "tbsp", "t": "tsp"}.get(unit, unit.casefold())
             unit = UNIT_ALIASES.get(unit, unit)
             key = (name.casefold(), unit)
             if key not in totals:

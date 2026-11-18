@@ -55,6 +55,13 @@ class CalculationTests(unittest.TestCase):
         self.assertEqual({(item["name"], item["unit"]) for item in items},
                          {("rice", "g"), ("rice", "kg"), ("brown rice", "g")})
 
+    def test_case_sensitive_spoon_abbreviations_are_not_merged(self):
+        items = shopping_list([(recipe(1, "T", "sugar", 1), 1),
+                               (recipe(2, "tablespoons", "sugar", 1), 1),
+                               (recipe(1, "t", "sugar", 1), 1)])
+        self.assertEqual([(item["unit"], item["quantity"]) for item in items],
+                         [("tbsp", 3), ("tsp", 1)])
+
     def test_invalid_servings_and_source_data_are_rejected(self):
         for servings in (0, -1, 10001, True, 1.5, "2"):
             with self.subTest(servings=servings), self.assertRaises(ValueError):

@@ -68,6 +68,8 @@ Calculations use exact fractions. Displayed amounts use up to six significant
 digits; `~` marks a rounded value. Ingredient names match without regard to case
 or repeated whitespace. Common unit spellings such as `piece/pieces`,
 `gram/grams/g` and `tablespoon/tbsp` are treated as equivalent.
+The case-sensitive cooking abbreviations `T` (tablespoon) and `t` (teaspoon)
+remain distinct.
 Different units stay separate: 500 g and 1 kg are **not** automatically converted
 or combined. Different names such as `onion` and `chopped onion` also stay separate.
 
