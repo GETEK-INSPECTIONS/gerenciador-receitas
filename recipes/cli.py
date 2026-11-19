@@ -17,6 +17,9 @@ def main(argv=None):
                         help="SQLite database path (place before the command).")
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("menu", help="Open the interactive menu to create and edit recipes.")
+    web = commands.add_parser("web", help="Open the graphical interface in your browser.")
+    web.add_argument("--port", type=int, default=8765, help="Local port (default: 8765).")
+    web.add_argument("--no-browser", action="store_true", help="Start without opening a browser.")
     listing = commands.add_parser("list", help="List saved recipes.")
     listing.add_argument("--category", help="Filter by exact category, ignoring case.")
     listing.add_argument("--name", help="Search for part of a recipe name, ignoring case.")
@@ -34,6 +37,9 @@ def main(argv=None):
     if args.command in (None, "menu"):
         return run_menu(args.db)
     try:
+        if args.command == "web":
+            from .web import run_web
+            return run_web(args.db, args.port, not args.no_browser)
         if args.command == "delete" and not args.yes:
             raise ValueError("To confirm permanent deletion, repeat the command with --yes.")
         recipe = None

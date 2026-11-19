@@ -1,14 +1,69 @@
 # Recipe Manager
 
-A local recipe notebook for the terminal, built with Python and SQLite.
+A local recipe notebook with a graphical browser interface and an optional
+terminal menu, built with Python, SQLite, HTML, CSS and JavaScript.
 Create, list, view, edit and delete recipes with ingredients, quantities, units,
 servings, categories and directions. Filter by category or search by name.
 Preview different serving sizes, combine shopping lists and save weekly meal plans.
 
 ## Requirements
 
-Python 3.10 or newer. Only the standard library is required: no packages,
-accounts or external services. Run commands from the project root.
+Python 3.10 or newer and a modern browser. Only Python's standard library is
+required: no package installation, build step, accounts or external services.
+The application and its illustrations work without an internet connection.
+Run commands from the project root.
+
+## Graphical interface
+
+On Windows, double-click **Recipe Manager.pyw** in the project folder. With
+Python's Windows file associations installed, it opens your default browser at
+`http://127.0.0.1:8765` without a terminal window. Keep the launcher alongside
+the `recipes` folder. Opening it again reuses the running application when it
+uses the default database.
+
+The browser interface uses your existing database at
+`~/.gerenciador-receitas/recipes.db`. Recipes and meal plans saved from the
+terminal appear here too; no import or migration is needed.
+
+- **Recipe collection:** browse illustrated cards, filter by category, search
+  by name and sort by newest or name. Use **Add a recipe** or a card's edit
+  button to enter ingredients and directions in a form. Open a card to read
+  the recipe, preview different serving sizes or add it to your week.
+- **Weekly planner:** see a Monday–Sunday calendar with Breakfast, Lunch,
+  Dinner and Snack slots. Use **Plan a meal**, a slot's add button or a card's
+  **Add to week** button. Navigate between weeks or jump to a date. Completed
+  meal forms save immediately; removing an entry keeps its recipe.
+- **Shopping list:** select recipes and servings individually, or use the
+  week currently selected in the planner. Matching ingredients combine with
+  the same exact metric conversions used by the terminal. Check off items
+  as you shop, or use the print button to print the remaining unchecked items.
+
+Shopping selections and checkmarks are temporary and disappear on reload.
+Using **Use selected week** replaces the current shopping selection. Rebuilding
+the list preserves checkmarks for unchanged ingredients and amounts; ingredients
+whose amounts change need to be checked again. Saved recipes
+and meal plans remain in SQLite. Recipe cards use category illustrations,
+not photographs of the individual dishes.
+
+You can also start the browser interface from a terminal:
+
+```powershell
+py -3.13 -m recipes web
+py -3.13 -m recipes web --port 8767
+py -3.13 -m recipes web --no-browser
+py -3.13 -m recipes --db data/test.db web --port 8767
+```
+
+`--port` selects another local port if the default is occupied.
+`--no-browser` starts the server without opening a tab. On Linux/macOS, use
+`python3` in place of `py -3.13`.
+
+The server listens only on `127.0.0.1`, so it is available on this computer,
+not other devices. Closing the browser tab does not stop the server. For a
+terminal launch, press Ctrl+C in that terminal to stop it. The windowless
+launcher keeps its Python process running in the background until it is
+stopped or Windows is restarted. After a restart, double-click the launcher
+again. Saved recipes and plans remain available.
 
 ## Interactive menu
 
@@ -173,6 +228,7 @@ Place `--db` **before** the command to use a different database:
 
 ```powershell
 py -3.13 -m recipes --db data/test.db menu
+py -3.13 -m recipes --db data/test.db web
 py -3.13 -m recipes --db data/test.db add examples/pancakes.json
 py -3.13 -m recipes --db data/test.db list
 ```
@@ -187,12 +243,14 @@ information. Local database files are ignored by Git.
 py -3.13 -m unittest discover -s tests -v
 ```
 
-Tests run the real CLI in subprocesses with temporary databases. They cover
+Tests run the real CLI in subprocesses and the local HTTP API with temporary
+databases. They cover
 persistence, creation, editing, viewing, deletion, confirmation, invalid input,
 missing files and IDs, interactive forms, cancellation, categories,
 case-insensitive search, empty results, exact serving calculations, ingredient
 aggregation, metric conversion, responsive terminal layouts, weekly persistence,
-date boundaries and recipe deletion protection.
+date boundaries, recipe deletion protection, API input validation, static
+asset delivery and rejection of requests from other origins or hosts.
 They do not access or modify your personal database.
 
 Exit codes: `0` for success, `1` for data/storage errors in direct commands,
@@ -213,13 +271,16 @@ recipes/
   calculations.py Exact serving and shopping-list calculations
   planning.py     Dated meal-plan storage operations
   planning_ui.py  Serving, shopping and weekly planning menus
+  web.py          Local HTTP server and JSON API
+  static/         Browser interface, styles and illustrations
+Recipe Manager.pyw Windows launcher without a terminal window
 examples/        Sample recipes
-tests/           CLI integration tests
+tests/           Domain, CLI and HTTP integration tests
 ```
 
-This version runs locally with an interactive menu and optional JSON input.
-It does not include a graphical interface, synchronization or conversion between
-mass and volume, cups or spoon measures.
+This version runs locally in a browser or terminal, with optional JSON input.
+It does not include synchronization or conversion between mass and volume,
+cups or spoon measures.
 
 ## License
 

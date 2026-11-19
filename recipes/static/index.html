@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f2">
+  <title>Recipe Manager — Your everyday kitchen</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' rx='14' fill='%2338503d'/%3E%3Ctext x='25' y='36' text-anchor='middle' font-size='36' fill='%23ffffff'%3Er%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#recipes" aria-label="Recipe Manager home">
+        <span class="brand-mark" aria-hidden="true">r<span>m</span></span>
+        <span>recipe<br><strong>manager.</strong></span>
+      </a>
+      <p class="nav-label">YOUR KITCHEN</p>
+      <nav aria-label="Main navigation">
+        <button class="nav-button active" data-view="recipes"><span data-icon="book"></span>Recipe collection<span id="nav-count" class="nav-count">0</span></button>
+        <button class="nav-button" data-view="planner"><span data-icon="calendar"></span>Weekly planner</button>
+        <button class="nav-button" data-view="shopping"><span data-icon="bag"></span>Shopping list</button>
+      </nav>
+      <div class="sidebar-note"><span data-icon="leaf"></span><h3>A little planning.<br>A lot of good food.</h3><p>Make room for the meals<br>you love.</p></div>
+      <div class="local-status"><span></span> Your kitchen, saved locally</div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <header class="topbar"><span id="breadcrumb">My kitchen <span>/</span> Recipe collection</span><span class="today" id="today"></span></header>
+      <div id="page-error" class="error-banner" role="alert" hidden></div>
+      <section id="recipes-view" class="view" aria-labelledby="collection-title">
+        <div class="hero">
+          <div class="hero-copy"><p class="eyebrow"><span class="tiny-line"></span> YOUR EVERYDAY KITCHEN</p><h1>Good food.<br>A little more <em>organized.</em></h1><p>Keep your favorites close, plan something delicious,<br class="desktop-break"> and make every grocery trip a little easier.</p><button class="primary" data-action="new-recipe"><span data-icon="plus"></span>Add a recipe</button></div>
+          <div id="hero-art" aria-hidden="true"></div>
+          <div class="hero-caption">COLLECT. PLAN. COOK. ENJOY.</div>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">MADE TO BE MADE AGAIN</p><h2 id="collection-title">Your recipe collection <span id="collection-count" class="count"></span></h2></div><span class="subtle" id="collection-caption">Your favorites, all in one place.</span></div>
+        <div class="collection-tools"><label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Find your next favorite…" aria-label="Search recipes by name"></label><label class="sort-label">Sort by <select id="sort"><option value="recent">Newest first</option><option value="name">Name A–Z</option></select></label></div>
+        <div id="categories" class="category-chips" role="group" aria-label="Filter by category"></div>
+        <div id="recipe-grid" class="recipe-grid" aria-live="polite"><p class="empty">Opening your recipe collection…</p></div>
+      </section>
+      <section id="planner-view" class="view" aria-labelledby="planner-title" hidden>
+        <div class="page-heading"><div><p class="eyebrow">A LITTLE PLANNING GOES A LONG WAY</p><h1 id="planner-title">A delicious week ahead.</h1><p>Give your favorite recipes a place at the table.</p></div><button class="primary" data-action="new-meal"><span data-icon="plus"></span>Plan a meal</button></div>
+        <div class="planner-toolbar"><div class="week-controls"><button class="icon-button" data-action="previous-week" aria-label="Previous week"><span data-icon="left"></span></button><h2 id="week-title"></h2><button class="icon-button" data-action="next-week" aria-label="Next week"><span data-icon="right"></span></button></div><div class="toolbar-actions"><button class="secondary" data-action="this-week">This week</button><label class="date-jump">Jump to date<input id="week-date" type="date" aria-label="Choose a date to show its week"></label></div></div>
+        <div class="week-summary"><span id="plan-summary"></span><button class="text-button" data-action="week-shopping">Build this week's shopping list <span data-icon="right"></span></button></div>
+        <div class="week-scroll" tabindex="0" role="region" aria-label="Weekly meal calendar"><div id="week-board" class="week-board"></div></div>
+        <p class="footnote">Plans are saved automatically. Add more than one recipe to any meal.</p>
+      </section>
+      <section id="shopping-view" class="view" aria-labelledby="shopping-title" hidden>
+        <div class="page-heading"><div><p class="eyebrow">FROM YOUR KITCHEN TO YOUR BASKET</p><h1 id="shopping-title">A smarter shopping list.</h1><p>Choose your recipes. We'll bring the ingredients together.</p></div></div>
+        <div class="shopping-layout"><section class="panel selection-panel"><div class="panel-heading"><h2>What's cooking?</h2><span data-icon="book"></span></div><p class="subtle">Add recipes and adjust the servings.</p><form id="shopping-add"><label>Recipe<select id="shopping-recipe" required></select></label><div class="inline-fields"><label>Servings<input id="shopping-servings" type="number" min="1" max="10000" value="2" required></label><button class="primary" type="submit"><span data-icon="plus"></span>Add to list</button></div></form><div class="or-divider">or use your meal plan</div><button class="secondary full-width" data-action="week-shopping"><span data-icon="calendar"></span>Use selected week</button><p class="footnote" id="shopping-week"></p><div id="shopping-selections"></div><p class="footnote">Selections and checkmarks last until you reload this page.</p></section>
+        <section class="panel checklist-panel"><div class="panel-heading"><div><p class="eyebrow">READY FOR THE MARKET</p><h2>Your grocery checklist</h2></div><button class="icon-button" data-action="print" aria-label="Print shopping list"><span data-icon="print"></span></button></div><p class="subtle" id="shopping-progress">Add a recipe to get started.</p><div id="shopping-items"></div><div class="conversion-note"><span data-icon="leaf"></span><p>A little less mental math.<br><span>Matching ingredients combine automatically, including g + kg and ml + L.</span></p></div></section></div>
+      </section>
+      <footer class="page-footer"><span>Made for everyday cooking.</span><span>RECIPE MANAGER</span></footer>
+    </main>
+  </div>
+  <dialog id="dialog"><div id="dialog-content"></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
