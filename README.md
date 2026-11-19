@@ -8,9 +8,15 @@ Preview different serving sizes, combine shopping lists and save weekly meal pla
 
 ## Requirements
 
-Python 3.10 or newer and a modern browser. Only Python's standard library is
-required: no package installation, build step, accounts or external services.
-The application and its illustrations work without an internet connection.
+Python 3.10 or newer and a modern browser. Install the photo-processing dependency:
+
+```powershell
+py -3.13 -m pip install -r requirements.txt
+```
+
+Pillow validates and optimizes uploaded photos. There is no frontend build step,
+account or external service. After installation, the application, illustrations
+and saved photos work without an internet connection.
 Run commands from the project root.
 
 ## Graphical interface
@@ -25,7 +31,7 @@ The browser interface uses your existing database at
 `~/.gerenciador-receitas/recipes.db`. Recipes and meal plans saved from the
 terminal appear here too; no import or migration is needed.
 
-- **Recipe collection:** browse illustrated cards, filter by category, search
+- **Recipe collection:** browse photo cards, filter by category, search
   by name and sort by newest or name. Use **Add a recipe** or a card's edit
   button to enter ingredients and directions in a form. Open a card to read
   the recipe, preview different serving sizes or add it to your week.
@@ -42,8 +48,27 @@ Shopping selections and checkmarks are temporary and disappear on reload.
 Using **Use selected week** replaces the current shopping selection. Rebuilding
 the list preserves checkmarks for unchanged ingredients and amounts; ingredients
 whose amounts change need to be checked again. Saved recipes
-and meal plans remain in SQLite. Recipe cards use category illustrations,
-not photographs of the individual dishes.
+and meal plans remain in SQLite. Recipes without a photo keep their category
+illustration.
+
+### Recipe photos
+
+In **Add a recipe** or **Edit**, use **Choose photo** or drop a file into the
+photo area. JPG, PNG and WebP files up to 8 MB and 40 megapixels are supported.
+The preview lets you check your selection before saving. **Remove photo** returns
+the card to its illustration. Adding, replacing or removing a photo only takes
+effect with **Save recipe**; cancelling leaves the saved recipe and photo intact.
+
+Photos appear on collection cards and in recipe details. Wide photos work well
+as covers; cards crop the display to fill the frame. The server corrects EXIF
+orientation, resizes the longest edge to at most 1600 pixels, strips embedded
+metadata (including location), and stores an optimized JPEG in the same SQLite
+database. Your original file is unchanged. A database backup includes the photos.
+Photo credits, when present, link to the source from the recipe detail view.
+
+The 20 reference images in [examples/photos](examples/photos) can also be chosen
+through the upload control. Their matching recipe titles, authors, licenses and
+presentation differences are recorded in [the source manifest](docs/photo-sources.json).
 
 You can also start the browser interface from a terminal:
 
@@ -212,6 +237,8 @@ plus optional `category`. Older recipes without categories remain valid.
 
 Duplicate titles are allowed; each recipe has its own ID. The `show` command
 returns recipe data as JSON, suitable for reuse as input.
+Photos are stored separately from this JSON format. Editing a recipe through
+the CLI preserves its photo; JSON exports do not include photo data or credits.
 
 ### Sample collection
 
@@ -251,6 +278,9 @@ case-insensitive search, empty results, exact serving calculations, ingredient
 aggregation, metric conversion, responsive terminal layouts, weekly persistence,
 date boundaries, recipe deletion protection, API input validation, static
 asset delivery and rejection of requests from other origins or hosts.
+Photo checks cover JPEG, PNG and WebP decoding, file-size and pixel limits,
+invalid uploads, EXIF orientation, metadata removal, resizing, persistence,
+replacement, removal and atomic recipe/photo saves.
 They do not access or modify your personal database.
 
 Exit codes: `0` for success, `1` for data/storage errors in direct commands,
@@ -268,13 +298,16 @@ recipes/
   display.py      Terminal layouts, tables and optional color
   model.py        Recipe validation
   storage.py      SQLite transactions and filtering
+  photos.py       Photo validation, optimization and database storage
   calculations.py Exact serving and shopping-list calculations
   planning.py     Dated meal-plan storage operations
   planning_ui.py  Serving, shopping and weekly planning menus
   web.py          Local HTTP server and JSON API
   static/         Browser interface, styles and illustrations
 Recipe Manager.pyw Windows launcher without a terminal window
+requirements.txt Photo-processing dependency (Pillow)
 examples/        Sample recipes
+docs/            Photo sources, credits and project notes
 tests/           Domain, CLI and HTTP integration tests
 ```
 
@@ -284,4 +317,9 @@ cups or spoon measures.
 
 ## License
 
-Distributed under the [MIT license](LICENSE).
+Application code is distributed under the [MIT license](LICENSE).
+The real example photographs have their own licenses and attribution requirements;
+they are not relicensed under MIT. See the per-photo records in
+[docs/photo-sources.json](docs/photo-sources.json) and the selection notes in
+[docs/photo-source-notes.md](docs/photo-source-notes.md). These photos are visual
+references for the dishes, not photographs of the user's own cooking.

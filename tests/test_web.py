@@ -1,12 +1,15 @@
 """HTTP integration checks against an isolated temporary recipe notebook."""
 
 import json
+import base64
+from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
 import unittest
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from PIL import Image
 
 from recipes.web import create_server
 
@@ -93,6 +96,44 @@ class WebTests(unittest.TestCase):
         self.assertEqual(self.request("/api/shopping", "POST", {"selections": [{}]})[0], 400)
         self.assertEqual(self.request("/api/meals?week=oops")[0], 400)
         self.assertEqual(self.request("/api/recipes")[1], [])
+
+    def test_photo_upload_replace_preserve_and_remove(self):
+        output = BytesIO()
+        with Image.new("RGB", (10, 6), "orange") as image:
+            image.save(output, "PNG")
+        photo = {"data_url": "data:image/png;base64," + base64.b64encode(output.getvalue()).decode(),
+                 "credit": "Recipe photographer", "source_url": "https://example.com/photo"}
+        recipe_id = self.create_recipe({**self.recipe, "photo": photo})
+        item = self.request("/api/recipes")[1][0]
+        self.assertEqual(item["photo_url"], f"/api/recipes/{recipe_id}/photo")
+        self.assertEqual(item["photo_credit"], photo["credit"])
+        status, first = self.request(item["photo_url"])
+        self.assertEqual(status, 200)
+        with urlopen(self.base + item["photo_url"]) as response:
+            self.assertEqual(response.headers["Content-Type"], "image/jpeg")
+        with Image.open(BytesIO(first)) as image:
+            self.assertEqual(image.size, (10, 6))
+        path = f"/api/recipes/{recipe_id}"
+        edited = {**self.recipe, "title": "Edited recipe"}
+        self.assertEqual(self.request(path, "PUT", edited)[0], 200)
+        self.assertEqual(self.request(item["photo_url"])[1], first)
+        self.assertEqual(self.request(path, "PUT", {**edited, "photo": {
+            **photo, "credit": "Updated credit"}})[0], 200)
+        self.assertEqual(self.request("/api/recipes")[1][0]["photo_credit"], "Updated credit")
+        self.assertEqual(self.request(path, "PUT", {**edited, "photo": None})[0], 200)
+        self.assertNotIn("photo_url", self.request("/api/recipes")[1][0])
+        self.assertEqual(self.request(item["photo_url"])[0], 404)
+
+    def test_invalid_photo_does_not_create_or_overwrite_recipe(self):
+        invalid_photo = {"data_url": "data:image/png;base64,aW52YWxpZA=="}
+        status, _ = self.request("/api/recipes", "POST", {**self.recipe, "photo": invalid_photo})
+        self.assertEqual(status, 400)
+        self.assertEqual(self.request("/api/recipes")[1], [])
+        recipe_id = self.create_recipe()
+        status, _ = self.request(f"/api/recipes/{recipe_id}", "PUT", {
+            **self.recipe, "title": "Must not replace title", "photo": invalid_photo})
+        self.assertEqual(status, 400)
+        self.assertEqual(self.request("/api/recipes")[1][0]["title"], "Pancakes")
 
     def test_local_only_requests_and_static_allowlist(self):
         for headers in ({"Origin": "https://evil.example"},

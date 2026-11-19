@@ -26,6 +26,12 @@ def open_database(path):
                 "recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE RESTRICT, "
                 "servings INTEGER NOT NULL CHECK (servings BETWEEN 1 AND 10000))"
             )
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS recipe_photos ("
+                "recipe_id INTEGER PRIMARY KEY REFERENCES recipes(id) ON DELETE CASCADE, "
+                "data BLOB NOT NULL, credit TEXT NOT NULL DEFAULT '', "
+                "source_url TEXT NOT NULL DEFAULT '')"
+            )
             yield connection
     finally:
         connection.close()

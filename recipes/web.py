@@ -12,6 +12,7 @@ import webbrowser
 from .calculations import format_measure, scale_ingredients, shopping_list
 from .model import validate_recipe
 from .planning import add_meal, list_meals, remove_meal, week_start
+from .photos import photo_metadata, prepare_photo, store_photo
 from .storage import delete_recipe, get_recipe, list_recipes, open_database, save_recipe
 
 
@@ -28,6 +29,15 @@ def measures(items):
             for item in items]
 
 
+def save_web_recipe(connection, data, recipe_id=None):
+    recipe = validate_recipe({key: value for key, value in data.items() if key != "photo"})
+    photo = prepare_photo(data["photo"]) if data.get("photo") is not None else None
+    recipe_id = save_recipe(connection, recipe, recipe_id)
+    if "photo" in data:
+        store_photo(connection, recipe_id, photo)
+    return recipe_id
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
@@ -36,7 +46,8 @@ class Handler(BaseHTTPRequestHandler):
         if content_type == "application/json":
             payload = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         self.send_response(status)
-        self.send_header("Content-Type", content_type + "; charset=utf-8")
+        charset = "; charset=utf-8" if content_type.startswith("text/") or content_type == "application/json" else ""
+        self.send_header("Content-Type", content_type + charset)
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
@@ -52,8 +63,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get_content_type() != "application/json":
             raise ValueError("Send application/json.")
         length = int(self.headers.get("Content-Length", "0"))
-        if not 0 < length <= 1_000_000:
-            raise ValueError("Request body must be between 1 byte and 1 MB.")
+        if not 0 < length <= 12 * 1024 * 1024:
+            raise ValueError("Request body must be between 1 byte and 12 MB.")
         data = json.loads(self.rfile.read(length))
         if not isinstance(data, dict):
             raise ValueError("Send a JSON object.")
@@ -78,14 +89,24 @@ class Handler(BaseHTTPRequestHandler):
         data = self.read_json() if self.command in ("POST", "PUT") else {}
         status = 200
         with open_database(self.server.database) as connection:
+            if (match := re.fullmatch(r"/api/recipes/([1-9][0-9]{0,17})/photo", path)) and self.command == "GET":
+                row = connection.execute("SELECT data FROM recipe_photos WHERE recipe_id = ?",
+                                         (int(match[1]),)).fetchone()
+                if row is None:
+                    self.send(404, {"error": "No photo is saved for this recipe."})
+                else:
+                    self.send(200, row[0], "image/jpeg")
+                return
             if path == "/api/info" and self.command == "GET":
                 result = {"application": "recipe-manager", "database": str(self.server.database)}
             elif path == "/api/recipes" and self.command == "GET":
                 rows = list_recipes(connection, name=query.get("name", [None])[0],
                                     category=query.get("category", [None])[0])
-                result = [{"id": recipe_id, **recipe} for recipe_id, recipe in rows]
+                photos = photo_metadata(connection)
+                result = [{"id": recipe_id, **recipe, **photos.get(recipe_id, {})}
+                          for recipe_id, recipe in rows]
             elif path == "/api/recipes" and self.command == "POST":
-                result = {"id": save_recipe(connection, validate_recipe(data))}
+                result = {"id": save_web_recipe(connection, data)}
                 status = 201
             elif match := re.fullmatch(r"/api/recipes/([1-9][0-9]{0,17})(/scale)?", path):
                 recipe_id = int(match[1])
@@ -94,7 +115,7 @@ class Handler(BaseHTTPRequestHandler):
                     servings = int(query.get("servings", [recipe["servings"]])[0])
                     result = measures(scale_ingredients(recipe, servings))
                 elif not match[2] and self.command == "PUT":
-                    result = {"id": save_recipe(connection, validate_recipe(data), recipe_id)}
+                    result = {"id": save_web_recipe(connection, data, recipe_id)}
                 elif not match[2] and self.command == "DELETE":
                     delete_recipe(connection, recipe_id)
                     result = {"deleted": recipe_id}

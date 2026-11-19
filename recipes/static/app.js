@@ -5,6 +5,7 @@ const escape = value => String(value).replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 }[char]));
 const icons = {
+  camera: '<path d="m8 5 2-2h4l2 2h5v16H3V5Z"/><circle cx="12" cy="12" r="4"/>',
   book: '<path d="M12 5v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m4 0h2m-8 3h2"/>',
   bag: '<path d="M5 7h14l2 14H3ZM8 8V6a4 4 0 0 1 8 0v2"/>',
@@ -84,6 +85,61 @@ function categoryOptions(selected = "") {
 function recipeOptions(selected) {
   return state.recipes.map(r => '<option value="' + r.id + '"' + (r.id === Number(selected) ? " selected" : "") + '>' + escape(r.title) + '</option>').join("");
 }
+function recipeImage(recipe) {
+  return recipe.photo_url
+    ? '<img class="recipe-photo" src="' + escape(recipe.photo_url) + '" alt="' + escape(recipe.title) + '" loading="lazy" decoding="async">'
+    : foodArt(recipe.category || "");
+}
+function photoCredit(recipe) {
+  if (!recipe.photo_credit) return "";
+  const credit = escape(recipe.photo_credit);
+  return '<figcaption class="photo-credit">' + (recipe.photo_source_url
+    ? '<a href="' + escape(recipe.photo_source_url) + '" target="_blank" rel="noopener noreferrer">' + credit + '</a>'
+    : credit) + '</figcaption>';
+}
+function photoEditor(recipe) {
+  return '<section class="photo-field" aria-labelledby="photo-label"><div class="panel-heading"><div><h3 id="photo-label">Recipe photo</h3><p class="footnote">A little inspiration, before the first bite.</p></div>' + icon("camera") + '</div><div id="photo-drop" class="photo-drop"><div id="photo-preview">' + (recipe.photo_url ? '<img src="' + escape(recipe.photo_url) + '" alt="Current recipe photo">' : '<div class="photo-placeholder">' + icon("camera") + '<strong>Give your recipe a cover.</strong><span>Drop a photo here, or choose one below.</span></div>') + '</div><div class="photo-controls"><input id="photo-file" type="file" accept="image/jpeg,image/png,image/webp" hidden><button type="button" class="secondary" data-action="choose-photo">' + icon("plus") + 'Choose photo</button><button type="button" class="text-button danger-text" data-action="remove-photo"' + (recipe.photo_url ? "" : " hidden") + '>Remove photo</button></div></div><p id="photo-status" class="footnote" role="status">JPG, PNG or WebP · Up to 8 MB · Saved when you save the recipe.</p></section>';
+}
+async function selectPhoto(file) {
+  const form = $("#recipe-form");
+  if (!file || !form || form.dataset.busy) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) throw new Error("Choose a JPG, PNG or WebP photo.");
+  if (!file.size || file.size > 8 * 1024 * 1024) throw new Error("Choose a photo smaller than 8 MB.");
+  const selection = (form.photoSelection || 0) + 1;
+  if (!form.dataset.photoLoading) form.photoStableStatus = $("#photo-status").textContent;
+  const previousStatus = form.photoStableStatus;
+  form.photoSelection = selection;
+  form.dataset.photoLoading = "true";
+  $("#photo-status").textContent = "Preparing your photo…";
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("This photo could not be read. Please choose it again."));
+      reader.readAsDataURL(file);
+    });
+    const image = new Image();
+    image.src = dataUrl;
+    await image.decode().catch(() => { throw new Error("This file is not a readable photo."); });
+    if (image.naturalWidth * image.naturalHeight > 40000000) throw new Error("Choose a photo with no more than 40 megapixels.");
+    if ($("#recipe-form") !== form || form.photoSelection !== selection) return;
+    form.photoChange = {data_url: dataUrl};
+    $("#photo-preview").innerHTML = '<img src="' + escape(dataUrl) + '" alt="New recipe photo preview">';
+    $('[data-action="remove-photo"]', form).hidden = false;
+    $("#photo-status").textContent = file.name + " · Ready to save";
+    form.photoStableStatus = $("#photo-status").textContent;
+    $("#form-error").hidden = true;
+  } catch (error) {
+    if ($("#recipe-form") === form && form.photoSelection === selection) {
+      $("#photo-status").textContent = previousStatus;
+      throw error;
+    }
+  } finally {
+    if ($("#recipe-form") === form && form.photoSelection === selection) {
+      delete form.dataset.photoLoading;
+    }
+  }
+}
 function renderRecipes() {
   $("#nav-count").textContent = state.recipes.length;
   $("#collection-count").textContent = state.recipes.length;
@@ -95,7 +151,7 @@ function renderRecipes() {
   const items = state.recipes.filter(r => (!state.category || (r.category || "Uncategorized") === state.category) && r.title.toLowerCase().includes(state.search.trim().toLowerCase()));
   items.sort(state.sort === "name" ? (a, b) => a.title.localeCompare(b.title, "en") : (a, b) => b.id - a.id);
   $("#collection-caption").textContent = countLabel(items.length, "recipe") + " to make your own.";
-  $("#recipe-grid").innerHTML = items.map(r => '<article class="recipe-card"><button class="card-open" data-action="detail" data-id="' + r.id + '" aria-label="View ' + escape(r.title) + '"><div class="food-art tone-' + (r.id % 4) + '">' + foodArt(r.category || "") + '<span class="card-category">' + escape(r.category || "Uncategorized") + '</span></div><div class="card-body"><h3>' + escape(r.title) + '</h3><p class="card-meta">' + icon("people") + countLabel(r.servings, 'serving') + '<span class="dot">·</span>' + countLabel(r.ingredients.length, 'ingredient') + '</p></div></button><div class="card-footer"><button class="text-button" data-action="plan-recipe" data-id="' + r.id + '">' + icon("calendar") + 'Add to week</button><button class="icon-button" data-action="edit-recipe" data-id="' + r.id + '" aria-label="Edit ' + escape(r.title) + '">' + icon("edit") + '</button></div></article>').join("") || '<div class="empty"><strong>' + (state.recipes.length ? "No recipes found." : "Your next favorite starts here.") + '</strong>' + (state.recipes.length ? "Try a different name or category." : 'Add your first recipe to start your collection.<br><button class="primary" data-action="new-recipe">Add a recipe</button>') + '</div>';
+  $("#recipe-grid").innerHTML = items.map(r => '<article class="recipe-card"><button class="card-open" data-action="detail" data-id="' + r.id + '" aria-label="View ' + escape(r.title) + '"><div class="food-art tone-' + (r.id % 4) + '">' + recipeImage(r) + '<span class="card-category">' + escape(r.category || "Uncategorized") + '</span></div><div class="card-body"><h3>' + escape(r.title) + '</h3><p class="card-meta">' + icon("people") + countLabel(r.servings, 'serving') + '<span class="dot">·</span>' + countLabel(r.ingredients.length, 'ingredient') + '</p></div></button><div class="card-footer"><button class="text-button" data-action="plan-recipe" data-id="' + r.id + '">' + icon("calendar") + 'Add to week</button><button class="icon-button" data-action="edit-recipe" data-id="' + r.id + '" aria-label="Edit ' + escape(r.title) + '">' + icon("edit") + '</button></div></article>').join("") || '<div class="empty"><strong>' + (state.recipes.length ? "No recipes found." : "Your next favorite starts here.") + '</strong>' + (state.recipes.length ? "Try a different name or category." : 'Add your first recipe to start your collection.<br><button class="primary" data-action="new-recipe">Add a recipe</button>') + '</div>';
   const previous = $("#shopping-recipe").value;
   $("#shopping-recipe").innerHTML = recipeOptions(previous);
   $("#shopping-add button").disabled = !state.recipes.length;
@@ -159,13 +215,13 @@ function stepRow(step = "") {
 function editRecipe(id) {
   const r = id ? recipeById(id) : {title: "", category: "", servings: 2, ingredients: [{name: "", quantity: "", unit: "g"}], steps: [""]};
   openDialog(id ? "A little recipe refinement." : "Something worth keeping.", id ? "EDIT YOUR RECIPE" : "ADD TO YOUR COLLECTION",
-    '<form id="recipe-form" data-id="' + (id || "") + '"><label>Recipe name<input name="title" required value="' + escape(r.title) + '" placeholder="What are we making?"></label><div class="form-row"><label>Category<input name="category" list="category-options" value="' + escape(r.category || "") + '" placeholder="e.g. Breakfast"><datalist id="category-options">' + categoryOptions() + '</datalist></label><label>Servings<input name="servings" type="number" min="1" max="10000" required value="' + r.servings + '"></label></div><div class="form-section"><div class="panel-heading"><h3>Ingredients</h3><button class="text-button" type="button" data-action="add-ingredient">' + icon("plus") + 'Add ingredient</button></div><div id="ingredient-rows">' + r.ingredients.map(ingredientRow).join("") + '</div></div><div class="form-section"><div class="panel-heading"><h3>Directions</h3><button class="text-button" type="button" data-action="add-step">' + icon("plus") + 'Add step</button></div><div id="step-rows">' + r.steps.map(stepRow).join("") + '</div></div></form>',
+    '<form id="recipe-form" data-id="' + (id || "") + '">' + photoEditor(r) + '<label>Recipe name<input name="title" required value="' + escape(r.title) + '" placeholder="What are we making?"></label><div class="form-row"><label>Category<input name="category" list="category-options" value="' + escape(r.category || "") + '" placeholder="e.g. Breakfast"><datalist id="category-options">' + categoryOptions() + '</datalist></label><label>Servings<input name="servings" type="number" min="1" max="10000" required value="' + r.servings + '"></label></div><div class="form-section"><div class="panel-heading"><h3>Ingredients</h3><button class="text-button" type="button" data-action="add-ingredient">' + icon("plus") + 'Add ingredient</button></div><div id="ingredient-rows">' + r.ingredients.map(ingredientRow).join("") + '</div></div><div class="form-section"><div class="panel-heading"><h3>Directions</h3><button class="text-button" type="button" data-action="add-step">' + icon("plus") + 'Add step</button></div><div id="step-rows">' + r.steps.map(stepRow).join("") + '</div></div></form>',
     '<button class="secondary" data-action="close">Cancel</button><button class="primary" type="submit" form="recipe-form">Save recipe</button>');
 }
 async function detail(id) {
   const r = recipeById(id);
   openDialog(r.title, escape(r.category || "YOUR RECIPE"),
-    '<div class="serving-control"><label for="detail-servings">Cooking for</label><input id="detail-servings" data-id="' + r.id + '" type="number" min="1" max="10000" value="' + r.servings + '"><span>servings</span></div><p class="footnote detail-note">Ingredient preview only. Cooking times and saved quantities stay the same.</p><div class="detail-columns"><section><h3>Ingredients</h3><div id="detail-ingredients">Loading ingredients…</div></section><section><h3>Let’s make it</h3><ol class="detail-steps">' + r.steps.map(step => '<li>' + escape(step) + '</li>').join("") + '</ol></section></div>',
+    (r.photo_url ? '<figure class="detail-photo">' + recipeImage(r) + photoCredit(r) + '</figure>' : '') + '<div class="serving-control"><label for="detail-servings">Cooking for</label><input id="detail-servings" data-id="' + r.id + '" type="number" min="1" max="10000" value="' + r.servings + '"><span>servings</span></div><p class="footnote detail-note">Ingredient preview only. Cooking times and saved quantities stay the same.</p><div class="detail-columns"><section><h3>Ingredients</h3><div id="detail-ingredients">Loading ingredients…</div></section><section><h3>Let’s make it</h3><ol class="detail-steps">' + r.steps.map(step => '<li>' + escape(step) + '</li>').join("") + '</ol></section></div>',
     '<button class="danger-text" data-action="delete-recipe" data-id="' + r.id + '">Delete recipe</button><button class="secondary" data-action="edit-recipe" data-id="' + r.id + '">' + icon("edit") + 'Edit</button><button class="primary" data-action="plan-recipe" data-id="' + r.id + '">' + icon("calendar") + 'Add to week</button>');
   await updateDetail();
 }
@@ -211,6 +267,18 @@ function updateProgress() {
   $("#shopping-progress").textContent = state.items.length ? done + " of " + state.items.length + " ingredients checked · " + countLabel(state.selections.length, "recipe") : "Add a recipe to get started.";
 }
 const actions = {
+  "choose-photo": () => { $("#photo-file").value = ""; $("#photo-file").click(); },
+  "remove-photo": () => {
+    const form = $("#recipe-form");
+    if (form.dataset.busy) return;
+    form.photoSelection = (form.photoSelection || 0) + 1;
+    delete form.dataset.photoLoading;
+    form.photoChange = null;
+    $("#photo-file").value = "";
+    $("#photo-preview").innerHTML = '<div class="photo-placeholder">' + icon("camera") + '<strong>A fresh canvas.</strong><span>Choose a new photo, or keep the illustration.</span></div>';
+    $('[data-action="remove-photo"]', form).hidden = true;
+    $("#photo-status").textContent = "Photo will be removed when you save the recipe.";
+  },
   "new-recipe": () => editRecipe(),
   "edit-recipe": button => editRecipe(button.dataset.id),
   detail: button => detail(button.dataset.id),
@@ -263,6 +331,7 @@ document.addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.target, submit = event.submitter;
   if (form.dataset.busy) return;
+  if (form.dataset.photoLoading) { report(new Error("Please wait for your photo to finish loading.")); return; }
   form.dataset.busy = "true";
   if (submit) submit.disabled = true;
   const errorBox = $("#form-error"); if (errorBox) errorBox.hidden = true;
@@ -277,6 +346,7 @@ document.addEventListener("submit", async event => {
           unit: $('[name="ingredient-unit"]', row).value.trim()
         })), steps: data.getAll("step").map(step => step.trim())
       };
+      if (form.photoChange !== undefined) recipe.photo = form.photoChange;
       if (data.get("category").trim()) recipe.category = data.get("category").trim();
       await api("/recipes" + (form.dataset.id ? "/" + form.dataset.id : ""), form.dataset.id ? "PUT" : "POST", recipe);
       dialog.close(); await refresh(); await renderShopping(); toast("Recipe saved. Something delicious to come back to.");
@@ -299,12 +369,29 @@ document.addEventListener("input", event => {
 });
 document.addEventListener("change", async event => {
   try {
+    if (event.target.id === "photo-file") await selectPhoto(event.target.files[0]);
     if (event.target.id === "week-date") await loadPlan(event.target.value);
     if (event.target.id === "detail-servings") await updateDetail();
     if (event.target.id === "meal-recipe") $("#meal-servings").value = recipeById(event.target.value).servings;
     if (event.target.id === "shopping-recipe") $("#shopping-servings").value = recipeById(event.target.value).servings;
     if (event.target.matches("#shopping-items input")) updateProgress();
   } catch (error) { report(error); }
+});
+document.addEventListener("dragover", event => {
+  const drop = event.target.closest("#photo-drop");
+  if (drop) { event.preventDefault(); drop.classList.add("drag-active"); }
+});
+document.addEventListener("dragleave", event => {
+  const drop = event.target.closest("#photo-drop");
+  if (drop && !drop.contains(event.relatedTarget)) drop.classList.remove("drag-active");
+});
+document.addEventListener("drop", event => {
+  const drop = event.target.closest("#photo-drop");
+  if (drop) {
+    event.preventDefault(); drop.classList.remove("drag-active");
+    if (event.dataTransfer.files.length !== 1) report(new Error("Choose one cover photo per recipe."));
+    else selectPhoto(event.dataTransfer.files[0]).catch(report);
+  }
 });
 window.addEventListener("hashchange", () => navigate(location.hash.slice(1)));
 async function init() {
